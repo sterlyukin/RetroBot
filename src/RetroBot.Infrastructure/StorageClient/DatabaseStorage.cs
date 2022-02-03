@@ -52,7 +52,6 @@ public class DatabaseStorage : IStorage
         }
         catch (Exception ex)
         {
-            //log
             return false;
         }
     }
