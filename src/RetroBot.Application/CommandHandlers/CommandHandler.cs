@@ -17,7 +17,7 @@ public abstract class CommandHandler
 
     protected async Task UpdateUserStateAsync(long userId, UserAction action)
     {
-        var getUserResult = await storage.GetByUserIdAsync(userId);
+        var getUserResult = await storage.TryGetByUserIdAsync(userId);
         if (!getUserResult.IsSuccess)
         {
             throw new Exception("User wasn't found");
@@ -27,6 +27,6 @@ public abstract class CommandHandler
         var stateMachine = new StateMachine.StateMachine(currentUser.State);
         currentUser.State = stateMachine.ChangeState(action);
 
-        await storage.UpdateUserAsync(currentUser);
+        await storage.TryUpdateUserAsync(currentUser);
     }
 }

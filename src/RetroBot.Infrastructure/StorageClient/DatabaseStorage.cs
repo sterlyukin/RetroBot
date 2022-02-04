@@ -14,7 +14,7 @@ public class DatabaseStorage : IStorage
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
 
-    public async Task<ServiceResult<IList<User>>> GetUsersAsync()
+    public async Task<ServiceResult<IList<User>>> TryGetUsersAsync()
     {
         try
         {
@@ -23,27 +23,36 @@ public class DatabaseStorage : IStorage
         }
         catch (DbException ex)
         {
-            //log
-            return ServiceResult<IList<User>>.Fail<IList<User>>($"Error query users: {ex.Message}");
+            return ServiceResult<IList<User>>.Fail<IList<User>>($"Error getting users: {ex.Message}");
         }
     }
 
-    public Task<ServiceResult<IList<Team>>> GetTeamsAsync()
+    public Task<ServiceResult<IList<Team>>> TryGetTeamsAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<ServiceResult<User>> GetByUserIdAsync(long userId)
+    public async Task<ServiceResult<User>> TryGetByUserIdAsync(long userId)
+    {
+        try
+        {
+            var user = await userRepository.GetUserByIdAsync(userId);
+            return user is not null
+                ? ServiceResult<User>.Success(user)
+                : ServiceResult<User>.Fail<User>($"User with id = {userId} wasn't found");
+        }
+        catch (DbException ex)
+        {
+            return ServiceResult<User>.Fail<User>($"Error getting user: {ex.Message}");
+        }
+    }
+
+    public async Task<ServiceResult<Team>> TryGetByTeamIdAsync(Guid teamId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ServiceResult<Team>> GetByTeamIdAsync(Guid teamId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> AddUserAsync(User user)
+    public async Task<bool> TryAddUserAsync(User user)
     {
         try
         {
@@ -56,13 +65,21 @@ public class DatabaseStorage : IStorage
         }
     }
 
-    public async Task<bool> AddTeamAsync(Team team)
+    public async Task<bool> TryAddTeamAsync(Team team)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> UpdateUserAsync(User user)
+    public async Task<bool> TryUpdateUserAsync(User user)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await userRepository.UpdateUserAsync(user);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 }

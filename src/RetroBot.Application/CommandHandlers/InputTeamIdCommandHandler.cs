@@ -20,13 +20,13 @@ public sealed class InputTeamIdCommandHandler : CommandHandler
             return "Sorry, you entered invalid team id";
         }
 
-        var getTeamResult = await storage.GetByTeamIdAsync(teamId);
+        var getTeamResult = await storage.TryGetByTeamIdAsync(teamId);
         if (!getTeamResult.IsSuccess)
         {
             return "Sorry, you entered non-existent team id";
         }
 
-        var getUserResult = await storage.GetByUserIdAsync(info.Message.From.Id);
+        var getUserResult = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (!getUserResult.IsSuccess)
         {
             throw new Exception("User wasn't found");

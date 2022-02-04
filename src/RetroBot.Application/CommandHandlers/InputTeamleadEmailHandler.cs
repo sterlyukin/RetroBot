@@ -16,7 +16,7 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
 
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
-        var getUserResult = await storage.GetByUserIdAsync(info.Message.From.Id);
+        var getUserResult = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (!getUserResult.IsSuccess)
         {
             throw new Exception("User wasn't found");
@@ -33,7 +33,7 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
             }
         };
         
-        await storage.AddTeamAsync(newTeam);
+        await storage.TryAddTeamAsync(newTeam);
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
         return "Congratulations!\n" +

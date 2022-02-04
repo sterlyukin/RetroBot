@@ -62,7 +62,7 @@ public class BotCommandHandler
         var containsHandler = menuCommandHandlers.TryGetValue(e.Message.Text, out var commandHandler);
         if (!containsHandler || commandHandler is null)
         {
-            var currentUserResult = await storage.GetByUserIdAsync(e.Message.From.Id);
+            var currentUserResult = await storage.TryGetByUserIdAsync(e.Message.From.Id);
             if (!currentUserResult.IsSuccess)
             {
                 await SendErrorMessageAsync(e.Message.Chat);
