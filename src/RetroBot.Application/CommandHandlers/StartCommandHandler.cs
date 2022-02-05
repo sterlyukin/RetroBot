@@ -35,6 +35,7 @@ public sealed class StartCommandHandler : CommandHandler
             });
             await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedStart);
         }
+
         return greetingMessage;
     }
     

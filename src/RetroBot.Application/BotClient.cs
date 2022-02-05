@@ -38,12 +38,17 @@ public class BotClient : IHostedService
     {
         var commands = new List<BotCommand>
         {
-            new BotCommand
+            new ()
+            {
+                Command = "start",
+                Description = "Start working"
+            },
+            new ()
             {
                 Command = "createteam",
                 Description = "Create retro process for the team",
             },
-            new BotCommand
+            new ()
             {
                 Command = "jointeam",
                 Description = "Join team retro process",

@@ -13,9 +13,9 @@ public sealed class CreateTeamCommandHandler : CommandHandler
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
     }
 
-    public override Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
+    public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
-        UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedCreateTeam);
-        return Task.FromResult("Input teamlead email, please");
+        await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedCreateTeam);
+        return "Input teamlead email, please";
     }
 }

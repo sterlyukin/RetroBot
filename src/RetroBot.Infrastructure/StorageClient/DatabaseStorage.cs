@@ -8,10 +8,12 @@ namespace RetroBot.Infrastructure.StorageClient;
 public class DatabaseStorage : IStorage
 {
     private readonly IUserRepository userRepository;
+    private readonly ITeamRepository teamRepository;
 
-    public DatabaseStorage(IUserRepository userRepository)
+    public DatabaseStorage(IUserRepository userRepository, ITeamRepository teamRepository)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
     }
 
     public async Task<ServiceResult<IList<User>>> TryGetUsersAsync()
@@ -27,9 +29,17 @@ public class DatabaseStorage : IStorage
         }
     }
 
-    public Task<ServiceResult<IList<Team>>> TryGetTeamsAsync()
+    public async Task<ServiceResult<IList<Team>>> TryGetTeamsAsync()
     {
-        throw new NotImplementedException();
+        try
+        {
+            var teams = await teamRepository.GetTeamsAsync();
+            return ServiceResult<IList<Team>>.Success(teams);
+        }
+        catch (DbException ex)
+        {
+            return ServiceResult<IList<Team>>.Fail<IList<Team>>($"Error getting teams: {ex.Message}");
+        }
     }
 
     public async Task<ServiceResult<User>> TryGetByUserIdAsync(long userId)
@@ -49,7 +59,17 @@ public class DatabaseStorage : IStorage
 
     public async Task<ServiceResult<Team>> TryGetByTeamIdAsync(Guid teamId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var team = await teamRepository.GetTeamByIdAsync(teamId);
+            return team is not null
+                ? ServiceResult<Team>.Success(team)
+                : ServiceResult<Team>.Fail<Team>($"Team with id = {teamId} wasn't found");
+        }
+        catch (DbException ex)
+        {
+            return ServiceResult<Team>.Fail<Team>($"Error getting team: {ex.Message}");
+        }
     }
 
     public async Task<bool> TryAddUserAsync(User user)
@@ -59,7 +79,7 @@ public class DatabaseStorage : IStorage
             await userRepository.AddUserAsync(user);
             return true;
         }
-        catch (Exception ex)
+        catch (DbException ex)
         {
             return false;
         }
@@ -67,7 +87,15 @@ public class DatabaseStorage : IStorage
 
     public async Task<bool> TryAddTeamAsync(Team team)
     {
-        throw new NotImplementedException();
+        try
+        {
+            await teamRepository.AddTeamAsync(team);
+            return true;
+        }
+        catch (DbException ex)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> TryUpdateUserAsync(User user)
@@ -78,6 +106,19 @@ public class DatabaseStorage : IStorage
             return true;
         }
         catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> TryAddUserToTeam(Team team, User user)
+    {
+        try
+        {
+            await teamRepository.AddUserToTeam(team.Id, user);
+            return true;
+        }
+        catch (DbException ex)
         {
             return false;
         }

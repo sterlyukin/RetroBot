@@ -11,4 +11,5 @@ public interface IStorage
     Task<bool> TryAddUserAsync(User user);
     Task<bool> TryAddTeamAsync(Team team);
     Task<bool> TryUpdateUserAsync(User user);
+    Task<bool> TryAddUserToTeam(Team team, User user);
 }

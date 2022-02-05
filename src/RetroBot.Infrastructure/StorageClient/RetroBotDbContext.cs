@@ -6,14 +6,14 @@ namespace RetroBot.Infrastructure.StorageClient;
 
 public sealed class RetroBotDbContext : DbContext
 {
-    //private readonly DatabaseOptions databaseOptions;
+    private readonly DatabaseOptions databaseOptions;
     
     public DbSet<User> Users { get; set; } = default!;
     public DbSet<Team> Teams { get; set; } = default!;
 
-    public RetroBotDbContext(/*DatabaseOptions databaseOptions*/)
+    public RetroBotDbContext(DatabaseOptions databaseOptions)
     {
-        //this.databaseOptions = databaseOptions ?? throw new ArgumentNullException(nameof(databaseOptions));
+        this.databaseOptions = databaseOptions ?? throw new ArgumentNullException(nameof(databaseOptions));
         
         Database.EnsureDeleted();
         Database.EnsureCreated();
@@ -27,6 +27,6 @@ public sealed class RetroBotDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer("Server=DESKTOP-M4AV3Q2;Database=helloappdb;Trusted_Connection=True;");
+        optionsBuilder.UseSqlServer($"Server={databaseOptions.ServerName};Database={databaseOptions.DatabaseName};Trusted_Connection=True;");
     }
 }

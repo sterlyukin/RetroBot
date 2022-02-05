@@ -36,9 +36,8 @@ public sealed class InputTeamIdCommandHandler : CommandHandler
         var currentTeam = getTeamResult.Data;
 
         await UpdateUserStateAsync(currentUser.Id, UserAction.EnteredTeamId);
+        await storage.TryAddUserToTeam(currentTeam, currentUser);
         
-        //TODO: fix
-        currentTeam.Users.Add(currentUser);
         return "Congratulations!\n" +
                                        "You you have successfully joined team.\n" +
                                        "Quizzes will be sent to you once a week.";

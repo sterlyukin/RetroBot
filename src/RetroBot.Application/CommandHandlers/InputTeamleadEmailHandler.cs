@@ -33,7 +33,7 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
             }
         };
         
-        await storage.TryAddTeamAsync(newTeam);
+        var addTeamResult = await storage.TryAddTeamAsync(newTeam);
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
         return "Congratulations!\n" +
