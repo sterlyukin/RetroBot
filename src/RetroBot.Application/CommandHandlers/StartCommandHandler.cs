@@ -5,20 +5,21 @@ using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public sealed class StartCommandHandler : CommandHandler
+internal sealed class StartCommandHandler : CommandHandler
 {
     private readonly IStorage storage;
+    private readonly Messages messages;
     
-    public StartCommandHandler(IStorage storage) : base(storage)
+    public StartCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
         var contactName = GetContactName(info);
-        var greetingMessage = $"Welcome, {contactName}.\n" +
-                              $"Please, look the list of available commands for further action.";
+        var greetingMessage = string.Format(messages.Greeting, contactName);
 
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is not null)

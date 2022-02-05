@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using RetroBot.Application.Contracts.Services.Storage;
-using RetroBot.Application.Exceptions;
+﻿using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient;
@@ -18,14 +16,7 @@ public class DatabaseStorage : IStorage
 
     public async Task<IList<User>> TryGetUsersAsync()
     {
-        try
-        {
-            return await userRepository.GetUsersAsync();
-        }
-        catch (DbException ex)
-        {
-            throw new BusinessException();
-        }
+        return await userRepository.GetUsersAsync();
     }
 
     public async Task<IList<Team>> TryGetTeamsAsync()

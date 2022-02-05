@@ -3,9 +3,9 @@ using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public sealed class CompletedCommandHandler : CommandHandler
+internal sealed class CompletedCommandHandler : CommandHandler
 {
-    public CompletedCommandHandler(IStorage storage) : base(storage)
+    public CompletedCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
     }
     

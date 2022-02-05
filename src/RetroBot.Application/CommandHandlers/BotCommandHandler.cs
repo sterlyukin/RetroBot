@@ -7,18 +7,20 @@ using Telegram.Bot.Types;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public class BotCommandHandler
+internal sealed class BotCommandHandler
 {
     private readonly ITelegramBotClient bot;
     private readonly IStorage storage;
+    private readonly Messages messages;
 
     private IDictionary<string, CommandHandler?> menuCommandHandlers;
     private IDictionary<UserState, CommandHandler?> stateCommandHandlers;
 
-    public BotCommandHandler(ITelegramBotClient bot, IStorage storage)
+    public BotCommandHandler(ITelegramBotClient bot, IStorage storage, Messages messages)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
         
         InitializeCommandHandlers();
     }
@@ -28,16 +30,16 @@ public class BotCommandHandler
         menuCommandHandlers = new Dictionary<string, CommandHandler?>
         {
             {
-                "/start",
-                new StartCommandHandler(storage)
+                messages.StartMenuCommand,
+                new StartCommandHandler(storage, messages)
             },
             {
-                "/jointeam",
-                new JoinTeamCommandHandler(storage)
+                messages.JoinTeamMenuCommand,
+                new JoinTeamCommandHandler(storage, messages)
             },
             {
-                "/createteam",
-                new CreateTeamCommandHandler(storage)
+                messages.CreateTeamMenuCommand,
+                new CreateTeamCommandHandler(storage, messages)
             }
         };
         
@@ -45,15 +47,15 @@ public class BotCommandHandler
         {
             {
                 UserState.OnInputTeamId,
-                new InputTeamIdCommandHandler(storage)
+                new InputTeamIdCommandHandler(storage, messages)
             },
             {
                 UserState.OnInputTeamleadEmail,
-                new InputTeamleadEmailHandler(storage)
+                new InputTeamleadEmailHandler(storage, messages)
             },
             {
                 UserState.Completed,
-                new CompletedCommandHandler(storage)
+                new CompletedCommandHandler(storage, messages)
             },
         };
     }
@@ -67,12 +69,12 @@ public class BotCommandHandler
             {
                 var user = await storage.TryGetByUserIdAsync(e.Message.From.Id);
                 if (user is null)
-                    throw new BusinessException("Sorry, current user is unknown.");
+                    throw new BusinessException(messages.UnknownUser);
                 
                 var containsState =
                     stateCommandHandlers.TryGetValue(user.State, out commandHandler);
                 if (!containsState || commandHandler is null)
-                    throw new BusinessException("Sorry, illegal command.");
+                    throw new BusinessException(messages.IllegalCommand);
             }
 
             var handlerResult = await commandHandler.ExecuteAsync(sender, e);
@@ -80,8 +82,8 @@ public class BotCommandHandler
         }
         catch (Exception ex)
         {
-            await SendMessageAsync(e.Message.Chat, $"{ex.Message}.\n" +
-                                         $"Please, press \"Start\" and try again.");
+            await SendMessageAsync(e.Message.Chat,
+                $"{ex.Message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
         }
     }
 

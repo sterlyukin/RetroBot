@@ -21,8 +21,12 @@ public class Startup
             .GetSection(nameof(DatabaseOptions))
             .Get<DatabaseOptions>();
 
+        var messages = configuration
+            .GetSection(nameof(Messages))
+            .Get<Messages>();
+
         services
-            .AddApplication(telegramClientOptions)
+            .AddApplication(telegramClientOptions, messages)
             .AddInfrastructure(databaseOptions);
     }
 }

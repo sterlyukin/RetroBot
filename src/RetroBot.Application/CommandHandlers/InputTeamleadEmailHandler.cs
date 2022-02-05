@@ -6,13 +6,15 @@ using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public sealed class InputTeamleadEmailHandler : CommandHandler
+internal sealed class InputTeamleadEmailHandler : CommandHandler
 {
     private readonly IStorage storage;
+    private readonly Messages messages;
 
-    public InputTeamleadEmailHandler(IStorage storage) : base(storage)
+    public InputTeamleadEmailHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
@@ -20,7 +22,7 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is null)
         {
-            throw new BusinessException("Sorry, current user is unknown.");
+            throw new BusinessException(messages.UnknownUser);
         }
         
         var inputTeamleadEmail = info.Message.Text;
@@ -37,8 +39,6 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
         await storage.TryAddTeamAsync(newTeam);
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
-        return "Congratulations!\n" +
-               $"Id of your retro-team: {newTeam.Id}\n" +
-               "Use it to connect to this team.";
+        return string.Format(messages.SuccessfullyCreateTeam, newTeam.Id);
     }
 }

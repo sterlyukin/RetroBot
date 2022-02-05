@@ -8,21 +8,23 @@ namespace RetroBot.Application.Builder;
 
 public class BotClient : IHostedService
 {
-    private readonly TelegramClientOptions telegramClientOptions;
     private readonly IStorage storage;
+    private readonly TelegramClientOptions telegramClientOptions;
+    private readonly Messages messages;
 
-    public BotClient(TelegramClientOptions telegramClientOptions, IStorage storage)
+    public BotClient(IStorage storage, TelegramClientOptions telegramClientOptions, Messages messages)
     {
         this.telegramClientOptions =
             telegramClientOptions ?? throw new ArgumentNullException(nameof(telegramClientOptions));
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var bot = new TelegramBotClient(telegramClientOptions.ApiKey);
 
-        var botCommandHandler = new BotCommandHandler(bot, storage);
+        var botCommandHandler = new BotCommandHandler(bot, storage, messages);
         bot.OnMessage += botCommandHandler.OnReceiveMessage;
         await InitializeBotCommandsAsync(bot);
         
@@ -40,19 +42,19 @@ public class BotClient : IHostedService
         {
             new ()
             {
-                Command = "start",
-                Description = "Start working"
+                Command = messages.StartMenuCommand,
+                Description = messages.StartMenuCommandDescription
             },
             new ()
             {
-                Command = "createteam",
-                Description = "Create retro process for the team",
+                Command = messages.JoinTeamMenuCommand,
+                Description = messages.JoinTeamMenuCommandDescription
             },
             new ()
             {
-                Command = "jointeam",
-                Description = "Join team retro process",
-            },
+                Command = messages.CreateTeamMenuCommand,
+                Description = messages.CreateTeamMenuCommandDescription
+            }
         };
 
         await bot.SetMyCommandsAsync(commands);

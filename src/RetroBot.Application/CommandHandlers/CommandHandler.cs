@@ -5,13 +5,15 @@ using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public abstract class CommandHandler
+internal abstract class CommandHandler
 {
     private readonly IStorage storage;
+    private readonly Messages messages;
 
-    protected CommandHandler(IStorage storage)
+    protected CommandHandler(IStorage storage, Messages messages)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public abstract Task<string> ExecuteAsync(object? sender, MessageEventArgs info);
@@ -21,7 +23,7 @@ public abstract class CommandHandler
         var user = await storage.TryGetByUserIdAsync(userId);
         if (user is null)
         {
-            throw new BusinessException("Sorry, current user is unknown.");
+            throw new BusinessException(messages.UnknownUser);
         }
 
         var stateMachine = new StateMachine.StateMachine(user.State);

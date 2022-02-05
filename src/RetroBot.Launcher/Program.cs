@@ -4,7 +4,7 @@ using RetroBot.Application.Builder;
 
 namespace RetroBot.Launcher;
 
-class Program
+public class Program
 {
     public static void Main(string[] args)
     {

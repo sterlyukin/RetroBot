@@ -6,13 +6,15 @@ public static class DependencyRegistration
 {
     public static IServiceCollection AddApplication(
         this IServiceCollection services,
-        TelegramClientOptions telegramClientOptions)
+        TelegramClientOptions telegramClientOptions,
+        Messages messages)
     {
         if (telegramClientOptions is null)
             throw new ArgumentNullException(nameof(telegramClientOptions));
 
         services
-            .AddSingleton(telegramClientOptions);
+            .AddSingleton(telegramClientOptions)
+            .AddSingleton(messages);
 
         return services;
     }

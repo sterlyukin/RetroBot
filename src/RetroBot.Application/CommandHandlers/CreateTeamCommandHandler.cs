@@ -4,19 +4,21 @@ using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-public sealed class CreateTeamCommandHandler : CommandHandler
+internal sealed class CreateTeamCommandHandler : CommandHandler
 {
     private readonly IStorage storage;
-
-    public CreateTeamCommandHandler(IStorage storage) : base(storage)
+    private readonly Messages messages;
+    
+    public CreateTeamCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedCreateTeam);
 
-        return "Input teamlead email, please";
+        return messages.SuggestionToEnterTeamleadEmail;
     }
 }
