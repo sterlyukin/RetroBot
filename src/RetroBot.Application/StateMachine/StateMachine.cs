@@ -10,7 +10,7 @@ public sealed class StateMachine
     public StateMachine(UserState currentState)
     {
         stateMachine = new StateMachine<UserState, UserAction>(currentState);
-        
+
         stateMachine.Configure(UserState.OnStartMessage)
             .Permit(UserAction.PressedStart, UserState.OnJoinBot);
 

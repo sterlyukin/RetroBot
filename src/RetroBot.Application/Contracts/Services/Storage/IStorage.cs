@@ -4,12 +4,12 @@ namespace RetroBot.Application.Contracts.Services.Storage;
 
 public interface IStorage
 {
-    Task<ServiceResult<IList<User>>> TryGetUsersAsync();
-    Task<ServiceResult<IList<Team>>> TryGetTeamsAsync();
-    Task<ServiceResult<User>> TryGetByUserIdAsync(long userId);
-    Task<ServiceResult<Team>> TryGetByTeamIdAsync(Guid teamId);
-    Task<bool> TryAddUserAsync(User user);
-    Task<bool> TryAddTeamAsync(Team team);
-    Task<bool> TryUpdateUserAsync(User user);
-    Task<bool> TryAddUserToTeam(Team team, User user);
+    Task<IList<User>> TryGetUsersAsync();
+    Task<IList<Team>> TryGetTeamsAsync();
+    Task<User?> TryGetByUserIdAsync(long userId);
+    Task<Team?> TryGetByTeamIdAsync(Guid teamId);
+    Task TryAddUserAsync(User user);
+    Task TryAddTeamAsync(Team team);
+    Task TryUpdateUserAsync(User user);
+    Task TryAddUserToTeam(Team team, User user);
 }

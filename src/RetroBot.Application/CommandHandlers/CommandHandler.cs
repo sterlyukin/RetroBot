@@ -1,4 +1,5 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using Telegram.Bot.Args;
 
@@ -17,16 +18,15 @@ public abstract class CommandHandler
 
     protected async Task UpdateUserStateAsync(long userId, UserAction action)
     {
-        var getUserResult = await storage.TryGetByUserIdAsync(userId);
-        if (!getUserResult.IsSuccess)
+        var user = await storage.TryGetByUserIdAsync(userId);
+        if (user is null)
         {
-            throw new Exception("User wasn't found");
+            throw new BusinessException("Sorry, current user is unknown.");
         }
 
-        var currentUser = getUserResult.Data;
-        var stateMachine = new StateMachine.StateMachine(currentUser.State);
-        currentUser.State = stateMachine.ChangeState(action);
+        var stateMachine = new StateMachine.StateMachine(user.State);
+        user.State = stateMachine.ChangeState(action);
 
-        await storage.TryUpdateUserAsync(currentUser);
+        await storage.TryUpdateUserAsync(user);
     }
 }

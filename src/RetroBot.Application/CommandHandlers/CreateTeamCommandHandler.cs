@@ -16,6 +16,7 @@ public sealed class CreateTeamCommandHandler : CommandHandler
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedCreateTeam);
+
         return "Input teamlead email, please";
     }
 }

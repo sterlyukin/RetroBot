@@ -1,4 +1,5 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core;
 using Telegram.Bot.Args;
@@ -16,10 +17,10 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
 
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
-        var getUserResult = await storage.TryGetByUserIdAsync(info.Message.From.Id);
-        if (!getUserResult.IsSuccess)
+        var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
+        if (user is null)
         {
-            throw new Exception("User wasn't found");
+            throw new BusinessException("Sorry, current user is unknown.");
         }
         
         var inputTeamleadEmail = info.Message.Text;
@@ -29,15 +30,15 @@ public sealed class InputTeamleadEmailHandler : CommandHandler
             TeamLeadEmail = inputTeamleadEmail,
             Users = new List<User>
             {
-                getUserResult.Data
+                user
             }
         };
         
-        var addTeamResult = await storage.TryAddTeamAsync(newTeam);
+        await storage.TryAddTeamAsync(newTeam);
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
         return "Congratulations!\n" +
-                               $"Id of your retro-team: {newTeam.Id}\n" +
-                               "Use it to connect to this team.";
+               $"Id of your retro-team: {newTeam.Id}\n" +
+               "Use it to connect to this team.";
     }
 }

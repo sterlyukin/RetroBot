@@ -1,4 +1,5 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Core;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -59,36 +60,29 @@ public class BotCommandHandler
     
     public async void OnReceiveMessage(object? sender, MessageEventArgs e)
     {
-        var containsHandler = menuCommandHandlers.TryGetValue(e.Message.Text, out var commandHandler);
-        if (!containsHandler || commandHandler is null)
+        try
         {
-            var currentUserResult = await storage.TryGetByUserIdAsync(e.Message.From.Id);
-            if (!currentUserResult.IsSuccess)
+            var containsHandler = menuCommandHandlers.TryGetValue(e.Message.Text, out var commandHandler);
+            if (!containsHandler || commandHandler is null)
             {
-                await SendErrorMessageAsync(e.Message.Chat);
-                return;
+                var user = await storage.TryGetByUserIdAsync(e.Message.From.Id);
+                if (user is null)
+                    throw new BusinessException("Sorry, current user is unknown.");
+                
+                var containsState =
+                    stateCommandHandlers.TryGetValue(user.State, out commandHandler);
+                if (!containsState || commandHandler is null)
+                    throw new BusinessException("Sorry, illegal command.");
             }
 
-            var containsState =
-                stateCommandHandlers.TryGetValue(currentUserResult.Data.State, out commandHandler);
-            if (!containsState)
-            {
-                await SendErrorMessageAsync(e.Message.Chat);
-                return;
-            }
+            var handlerResult = await commandHandler.ExecuteAsync(sender, e);
+            await SendMessageAsync(e.Message.Chat, handlerResult);
         }
-
-        var handlerResult = await commandHandler.ExecuteAsync(sender, e);
-        await bot.SendTextMessageAsync(
-            chatId: e.Message.Chat,
-            text: handlerResult
-        );
-    }
-
-    private async Task SendErrorMessageAsync(ChatId chat)
-    {
-        await SendMessageAsync(chat, $"Illegal command.\n" +
-                               $"Please, try again.");
+        catch (Exception ex)
+        {
+            await SendMessageAsync(e.Message.Chat, $"{ex.Message}.\n" +
+                                         $"Please, press \"Start\" and try again.");
+        }
     }
 
     private async Task SendMessageAsync(ChatId chat, string message)

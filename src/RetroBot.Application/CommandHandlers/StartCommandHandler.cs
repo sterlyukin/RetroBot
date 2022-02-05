@@ -20,11 +20,11 @@ public sealed class StartCommandHandler : CommandHandler
         var greetingMessage = $"Welcome, {contactName}.\n" +
                               $"Please, look the list of available commands for further action.";
 
-        var findUserResult = await storage.TryGetByUserIdAsync(info.Message.From.Id);
-        if (findUserResult.IsSuccess)
+        var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
+        if (user is not null)
         {
-            findUserResult.Data.State = UserState.OnStartMessage;
-            await storage.TryUpdateUserAsync(findUserResult.Data);
+            user.State = UserState.OnStartMessage;
+            await storage.TryUpdateUserAsync(user);
         }
         else
         {

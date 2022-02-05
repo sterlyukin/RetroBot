@@ -4,7 +4,7 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient.Configurations;
 
-internal sealed class UserSetConfiguration : IEntityTypeConfiguration<User>
+internal sealed class UserTableConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {

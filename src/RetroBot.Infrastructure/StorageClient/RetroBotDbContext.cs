@@ -22,7 +22,8 @@ public sealed class RetroBotDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .ApplyConfiguration(new UserSetConfiguration());
+            .ApplyConfiguration(new TeamTableConfiguration())
+            .ApplyConfiguration(new UserTableConfiguration());
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

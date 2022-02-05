@@ -1,6 +1,8 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 
 namespace RetroBot.Application.CommandHandlers;
 
@@ -17,29 +19,26 @@ public sealed class InputTeamIdCommandHandler : CommandHandler
     {
         if (!Guid.TryParse(info.Message.Text, out var teamId))
         {
-            return "Sorry, you entered invalid team id";
+            throw new BusinessException("Sorry, you entered invalid team id.");
         }
 
-        var getTeamResult = await storage.TryGetByTeamIdAsync(teamId);
-        if (!getTeamResult.IsSuccess)
+        var team = await storage.TryGetByTeamIdAsync(teamId);
+        if (team is null)
         {
-            return "Sorry, you entered non-existent team id";
+            throw new BusinessException("Sorry, you entered non-existent team id.");
         }
 
-        var getUserResult = await storage.TryGetByUserIdAsync(info.Message.From.Id);
-        if (!getUserResult.IsSuccess)
+        var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
+        if (user is null)
         {
-            throw new Exception("User wasn't found");
+            throw new BusinessException("Sorry, current user is unknown.");
         }
 
-        var currentUser = getUserResult.Data;
-        var currentTeam = getTeamResult.Data;
+        await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
+        await storage.TryAddUserToTeam(team, user);
 
-        await UpdateUserStateAsync(currentUser.Id, UserAction.EnteredTeamId);
-        await storage.TryAddUserToTeam(currentTeam, currentUser);
-        
         return "Congratulations!\n" +
-                                       "You you have successfully joined team.\n" +
-                                       "Quizzes will be sent to you once a week.";
+               "You you have successfully joined team.\n" +
+               "Quizzes will be sent to you once a week.";
     }
 }
