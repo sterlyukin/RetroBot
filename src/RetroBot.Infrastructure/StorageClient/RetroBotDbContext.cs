@@ -10,6 +10,8 @@ public sealed class RetroBotDbContext : DbContext
     
     public DbSet<User> Users { get; set; } = default!;
     public DbSet<Team> Teams { get; set; } = default!;
+    public DbSet<Question> Questions { get; set; } = default!;
+    public DbSet<Answer> Answers { get; set; } = default!;
 
     public RetroBotDbContext(DatabaseOptions databaseOptions)
     {
@@ -23,7 +25,29 @@ public sealed class RetroBotDbContext : DbContext
     {
         modelBuilder
             .ApplyConfiguration(new TeamTableConfiguration())
-            .ApplyConfiguration(new UserTableConfiguration());
+            .ApplyConfiguration(new UserTableConfiguration())
+            .ApplyConfiguration(new AnswerTableConfiguration())
+            .ApplyConfiguration(new QuestionTableConfiguration());
+
+        modelBuilder
+            .Entity<Question>()
+            .HasData(
+                new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Text = "What should we start doing in the new sprint?",
+                },
+                new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Text = "What should we continue to do in the new sprint?",
+                },
+                new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Text = "What should we stop doing in the new sprint?"
+                }
+            );
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

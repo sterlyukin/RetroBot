@@ -21,7 +21,7 @@ internal sealed class UserRepository : IUserRepository
     public async Task<User?> GetUserByIdAsync(long userId)
     {
         var users = await dbContext.Users.ToListAsync();
-        return users.FirstOrDefault(u => u.Id == userId);
+        return users.FirstOrDefault(user => user.Id == userId);
     }
 
     public async Task AddUserAsync(User user)

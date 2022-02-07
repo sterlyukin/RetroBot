@@ -12,4 +12,5 @@ public interface IStorage
     Task TryAddTeamAsync(Team team);
     Task TryUpdateUserAsync(User user);
     Task TryAddUserToTeam(Team team, User user);
+    Task<IList<Question>> TryGetQuestionsAsync();
 }

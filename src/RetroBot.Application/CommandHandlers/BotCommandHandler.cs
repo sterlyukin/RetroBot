@@ -78,11 +78,11 @@ internal sealed class BotCommandHandler
             }
 
             var handlerResult = await commandHandler.ExecuteAsync(sender, e);
-            await SendMessageAsync(e.Message.Chat, handlerResult);
+            await SendMessageAsync(e.Message.From.Id, handlerResult);
         }
         catch (Exception ex)
         {
-            await SendMessageAsync(e.Message.Chat,
+            await SendMessageAsync(e.Message.From.Id,
                 $"{ex.Message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
         }
     }

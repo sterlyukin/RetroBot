@@ -7,11 +7,13 @@ public class DatabaseStorage : IStorage
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
+    private readonly IQuestionRepository questionRepository;
 
-    public DatabaseStorage(IUserRepository userRepository, ITeamRepository teamRepository)
+    public DatabaseStorage(IUserRepository userRepository, ITeamRepository teamRepository, IQuestionRepository questionRepository)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
+        this.questionRepository = questionRepository ?? throw new ArgumentNullException(nameof(questionRepository));
     }
 
     public async Task<IList<User>> TryGetUsersAsync()
@@ -52,5 +54,10 @@ public class DatabaseStorage : IStorage
     public async Task TryAddUserToTeam(Team team, User user)
     {
         await teamRepository.AddUserToTeam(team.Id, user);
+    }
+
+    public async Task<IList<Question>> TryGetQuestionsAsync()
+    {
+        return await questionRepository.GetQuestionsAsync();
     }
 }

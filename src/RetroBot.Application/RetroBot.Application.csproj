@@ -9,6 +9,9 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Quartz" Version="3.3.3" />
+      <PackageReference Include="Quartz.Extensions.Hosting" Version="3.3.3" />
+      <PackageReference Include="Quartz.Jobs" Version="3.3.3" />
       <PackageReference Include="stateless" Version="5.11.0" />
       <PackageReference Include="Telegram.Bot" Version="16.0.2" />
     </ItemGroup>

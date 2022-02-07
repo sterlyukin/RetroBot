@@ -16,6 +16,7 @@ public static class DependencyRegistration
             .AddDbContext<RetroBotDbContext>()
             .AddSingleton<IUserRepository, UserRepository>()
             .AddSingleton<ITeamRepository, TeamRepository>()
+            .AddSingleton<IQuestionRepository, QuestionRepository>()
             .AddSingleton<IStorage, DatabaseStorage>();
 
         return services;
