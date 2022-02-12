@@ -21,6 +21,7 @@ internal sealed class StartCommandHandler : CommandHandler
         var contactName = GetContactName(info);
         var greetingMessage = string.Format(messages.Greeting, contactName);
 
+        var questions = await storage.TryGetQuestionsAsync();
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is not null)
         {
@@ -43,9 +44,7 @@ internal sealed class StartCommandHandler : CommandHandler
     private string GetContactName(MessageEventArgs info)
     {
         if (!string.IsNullOrEmpty(info.Message.From.Username))
-        {
             return info.Message.From.Username;
-        }
 
         return info.Message.From.FirstName;
     }

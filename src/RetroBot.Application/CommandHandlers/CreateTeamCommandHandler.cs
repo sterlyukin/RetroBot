@@ -6,12 +6,10 @@ namespace RetroBot.Application.CommandHandlers;
 
 internal sealed class CreateTeamCommandHandler : CommandHandler
 {
-    private readonly IStorage storage;
     private readonly Messages messages;
     
     public CreateTeamCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 

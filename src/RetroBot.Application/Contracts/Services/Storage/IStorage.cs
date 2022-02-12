@@ -10,6 +10,10 @@ public interface IStorage
     Task<Team?> TryGetByTeamIdAsync(Guid teamId);
     Task TryAddUserAsync(User user);
     Task TryAddTeamAsync(Team team);
-    Task TryUpdateUserAsync(User user);
+    Task<User> TryUpdateUserAsync(User user);
     Task TryAddUserToTeam(Team team, User user);
+    Task<IList<Question>> TryGetQuestionsAsync();
+    Task<IList<Answer>> TryGetAnswersByUserId(long userId);
+    Task TryAddAnswerAsync(Answer answer);
+    Task TryUpdateAnswerAsync(Answer answer);
 }

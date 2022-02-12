@@ -20,24 +20,18 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
         if (!Guid.TryParse(info.Message.Text, out var teamId))
-        {
             throw new BusinessException(messages.InvalidTeamId);
-        }
 
         var team = await storage.TryGetByTeamIdAsync(teamId);
         if (team is null)
-        {
             throw new BusinessException( messages.NonexistentTeamId);
-        }
 
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is null)
-        {
             throw new BusinessException(messages.UnknownUser);
-        }
 
-        await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
-        await storage.TryAddUserToTeam(team, user);
+        var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
+        await storage.TryAddUserToTeam(team, updatedUser);
 
         return messages.SuccessfullyJoinTeam;
     }

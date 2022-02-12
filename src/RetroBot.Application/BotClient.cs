@@ -9,21 +9,18 @@ namespace RetroBot.Application.Builder;
 public class BotClient : IHostedService
 {
     private readonly IStorage storage;
-    private readonly TelegramClientOptions telegramClientOptions;
+    private readonly ITelegramBotClient bot;
     private readonly Messages messages;
 
-    public BotClient(IStorage storage, TelegramClientOptions telegramClientOptions, Messages messages)
+    public BotClient(IStorage storage, ITelegramBotClient bot, Messages messages)
     {
-        this.telegramClientOptions =
-            telegramClientOptions ?? throw new ArgumentNullException(nameof(telegramClientOptions));
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var bot = new TelegramBotClient(telegramClientOptions.ApiKey);
-
         var botCommandHandler = new BotCommandHandler(bot, storage, messages);
         bot.OnMessage += botCommandHandler.OnReceiveMessage;
         await InitializeBotCommandsAsync(bot);

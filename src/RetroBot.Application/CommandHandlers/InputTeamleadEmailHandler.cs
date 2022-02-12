@@ -21,10 +21,9 @@ internal sealed class InputTeamleadEmailHandler : CommandHandler
     {
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is null)
-        {
             throw new BusinessException(messages.UnknownUser);
-        }
         
+        var updatedUser = await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
         var inputTeamleadEmail = info.Message.Text;
         var newTeam = new Team
         {
@@ -32,12 +31,10 @@ internal sealed class InputTeamleadEmailHandler : CommandHandler
             TeamLeadEmail = inputTeamleadEmail,
             Users = new List<User>
             {
-                user
+                updatedUser
             }
         };
-        
         await storage.TryAddTeamAsync(newTeam);
-        await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
         return string.Format(messages.SuccessfullyCreateTeam, newTeam.Id);
     }

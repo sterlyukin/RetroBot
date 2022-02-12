@@ -14,7 +14,7 @@ internal sealed class BotCommandHandler
     private readonly Messages messages;
 
     private IDictionary<string, CommandHandler?> menuCommandHandlers;
-    private IDictionary<UserState, CommandHandler?> stateCommandHandlers;
+    private IDictionary<UserState, CommandHandler?> processCommandHandlers;
 
     public BotCommandHandler(ITelegramBotClient bot, IStorage storage, Messages messages)
     {
@@ -43,7 +43,7 @@ internal sealed class BotCommandHandler
             }
         };
         
-        stateCommandHandlers = new Dictionary<UserState, CommandHandler?>
+        processCommandHandlers = new Dictionary<UserState, CommandHandler?>
         {
             {
                 UserState.OnInputTeamId,
@@ -52,10 +52,6 @@ internal sealed class BotCommandHandler
             {
                 UserState.OnInputTeamleadEmail,
                 new InputTeamleadEmailHandler(storage, messages)
-            },
-            {
-                UserState.Completed,
-                new CompletedCommandHandler(storage, messages)
             },
         };
     }
@@ -71,18 +67,21 @@ internal sealed class BotCommandHandler
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 
+                if(user.State == UserState.Completed)
+                    return;
+                
                 var containsState =
-                    stateCommandHandlers.TryGetValue(user.State, out commandHandler);
+                    processCommandHandlers.TryGetValue(user.State, out commandHandler);
                 if (!containsState || commandHandler is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
 
             var handlerResult = await commandHandler.ExecuteAsync(sender, e);
-            await SendMessageAsync(e.Message.Chat, handlerResult);
+            await SendMessageAsync(e.Message.From.Id, handlerResult);
         }
         catch (Exception ex)
         {
-            await SendMessageAsync(e.Message.Chat,
+            await SendMessageAsync(e.Message.From.Id,
                 $"{ex.Message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
         }
     }
