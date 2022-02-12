@@ -53,10 +53,6 @@ internal sealed class BotCommandHandler
                 UserState.OnInputTeamleadEmail,
                 new InputTeamleadEmailHandler(storage, messages)
             },
-            /*{
-                UserState.Completed,
-                new CompletedCommandHandler(storage, messages)
-            },*/
         };
     }
     

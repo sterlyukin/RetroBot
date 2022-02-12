@@ -26,10 +26,8 @@ public sealed class QuizProcessor : IQuizProcessor
     public async Task Execute(long userId, string answer)
     {
         var user = await storage.TryGetByUserIdAsync(userId);
-        if (user is null || user.State != UserState.Completed)
-        {
+        if (user is null || user.State is not UserState.Completed)
             return;
-        }
 
         var questions = await storage.TryGetQuestionsAsync();
         var userAnswers = await storage.TryGetAnswersByUserId(userId);
@@ -40,9 +38,10 @@ public sealed class QuizProcessor : IQuizProcessor
             lastAnsweredQustion.Text = answer;
             await storage.TryUpdateAnswerAsync(lastAnsweredQustion);
         }
-        
+
         var unAnsweredQuestion =
-            questions.FirstOrDefault(question => userAnswers.All(answer => answer.QuestionId != question.Id));
+            questions.FirstOrDefault(question =>
+                userAnswers.All(currentAnswer => currentAnswer.QuestionId != question.Id));
         if (unAnsweredQuestion is not null)
         {
             await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);

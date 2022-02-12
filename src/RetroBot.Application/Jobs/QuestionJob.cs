@@ -9,13 +9,11 @@ namespace RetroBot.Application.Jobs;
 [DisallowConcurrentExecution]
 public class QuestionJob : IJob
 {
-    private readonly ITelegramBotClient bot;
     private readonly IStorage storage;
     private readonly IQuizProcessor quizProcessor;
 
-    public QuestionJob(ITelegramBotClient bot, IStorage storage, IQuizProcessor quizProcessor)
+    public QuestionJob(IStorage storage, IQuizProcessor quizProcessor)
     {
-        this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
         this.quizProcessor = quizProcessor ?? throw new ArgumentNullException(nameof(quizProcessor));
     }

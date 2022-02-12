@@ -43,9 +43,7 @@ internal sealed class StartCommandHandler : CommandHandler
     private string GetContactName(MessageEventArgs info)
     {
         if (!string.IsNullOrEmpty(info.Message.From.Username))
-        {
             return info.Message.From.Username;
-        }
 
         return info.Message.From.FirstName;
     }

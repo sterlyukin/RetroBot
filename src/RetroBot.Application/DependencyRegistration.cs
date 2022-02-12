@@ -41,7 +41,6 @@ public static class DependencyRegistration
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
                     .WithIdentity("QuestionJob-trigger")
-                    //.StartAt(DateTime.Now.AddMinutes(5))
                     .WithCronSchedule("0 0/5 * * * ?"));
             });
         

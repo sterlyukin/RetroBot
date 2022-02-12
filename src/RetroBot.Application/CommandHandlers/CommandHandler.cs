@@ -23,9 +23,7 @@ internal abstract class CommandHandler
     {
         var user = await storage.TryGetByUserIdAsync(userId);
         if (user is null)
-        {
             throw new BusinessException(messages.UnknownUser);
-        }
 
         var stateMachine = new StateMachine.StateMachine(user.State);
         user.State = stateMachine.ChangeState(action);
