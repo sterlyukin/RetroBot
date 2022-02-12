@@ -20,7 +20,7 @@ public class DatabaseClient
         this.client = client ?? throw new ArgumentNullException(nameof(client));
         this.options = options ?? throw new ArgumentNullException(nameof(options));
 
-        InitializeQuestionsCollection();
+        InitializeData();
     }
     
     private IMongoCollection<T> GetCollection<T>()
@@ -30,27 +30,45 @@ public class DatabaseClient
             .GetCollection<T>(typeof(T).Name);
     }
 
-    private void InitializeQuestionsCollection()
+    private void InitializeData()
     {
-        var questions =  Questions.Find(_ => true).ToList();
-        if (questions is not null && questions.Any())
+        Remove(Users);
+        Remove(Teams);
+        Remove(Answers);
+        
+        InitializeQuestions();
+    }
+
+    private void Remove<TType>(IMongoCollection<TType> collection)
+    {
+        var entities = collection.GetAllAsync().Result;
+        if (entities.Any())
+        {
+            collection.DeleteAllAsync().RunSynchronously();
+        }
+    }
+
+    private void InitializeQuestions()
+    {
+        var questions = Questions.GetAllAsync().Result;
+        if (questions.Any())
         {
             return;
         }
         
         Questions.InsertMany(new List<Question>
         {
-            new Question
+            new ()
             {
                 Id = Guid.NewGuid(),
                 Text = "What we should stop to do?",
             },
-            new Question
+            new ()
             {
                 Id = Guid.NewGuid(),
                 Text = "What we should start to do?",
             },
-            new Question
+            new ()
             {
                 Id = Guid.NewGuid(),
                 Text = "What we should continue to do?",

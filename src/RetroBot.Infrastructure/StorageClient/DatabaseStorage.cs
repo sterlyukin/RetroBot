@@ -15,22 +15,22 @@ public class DatabaseStorage : IStorage
     
     public async Task<IList<User>> TryGetUsersAsync()
     {
-        return await databaseClient.Users.Find(_ => true).ToListAsync();
+        return await databaseClient.Users.GetAllAsync();
     }
 
     public async Task<IList<Team>> TryGetTeamsAsync()
     {
-        return await databaseClient.Teams.Find(_ => true).ToListAsync();
+        return await databaseClient.Teams.GetAllAsync();
     }
 
     public async Task<User?> TryGetByUserIdAsync(long userId)
     {
-        return await databaseClient.Users.Find(user => user.Id == userId).FirstOrDefaultAsync();
+        return await databaseClient.Users.GetByIdAsync(userId);
     }
 
     public async Task<Team?> TryGetByTeamIdAsync(Guid teamId)
     {
-        return await databaseClient.Teams.Find(team => team.Id == teamId).FirstOrDefaultAsync();
+        return await databaseClient.Teams.GetByIdAsync(teamId);
     }
 
     public async Task TryAddUserAsync(User user)
@@ -45,23 +45,19 @@ public class DatabaseStorage : IStorage
 
     public async Task<User> TryUpdateUserAsync(User user)
     {
-        var filter = Builders<User>.Filter.Eq(currentUser => currentUser.Id, user.Id);
-        await databaseClient.Users.ReplaceOneAsync(filter, user);
-        
-        return await databaseClient.Users.Find(currentUser => currentUser.Id == user.Id).FirstOrDefaultAsync();
+        await databaseClient.Users.UpdateByIssuedIdAsync(user);
+        return await databaseClient.Users.GetByIdAsync(user.Id);
     }
 
     public async Task TryAddUserToTeam(Team team, User user)
     {
         team.Users.Add(user);
-
-        var filter = Builders<Team>.Filter.Eq(currentTeam => currentTeam.Id, team.Id);
-        await databaseClient.Teams.ReplaceOneAsync(filter, team);
+        await databaseClient.Teams.UpdateByGeneratedIdAsync(team);
     }
 
     public async Task<IList<Question>> TryGetQuestionsAsync()
     {
-        return await databaseClient.Questions.Find(_ => true).ToListAsync();
+        return await databaseClient.Questions.GetAllAsync();
     }
 
     public async Task<IList<Answer>> TryGetAnswersByUserId(long userId)
@@ -76,7 +72,6 @@ public class DatabaseStorage : IStorage
 
     public async Task TryUpdateAnswerAsync(Answer answer)
     {
-        var filter = Builders<Answer>.Filter.Eq(currentAnswer => currentAnswer.Id, answer.Id);
-        await databaseClient.Answers.ReplaceOneAsync(filter, answer);
+        await databaseClient.Answers.UpdateByGeneratedIdAsync(answer);
     }
 }

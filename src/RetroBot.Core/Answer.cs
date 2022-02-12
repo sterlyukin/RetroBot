@@ -1,6 +1,6 @@
 ﻿namespace RetroBot.Core;
 
-public sealed class Answer
+public sealed class Answer : IWithGeneratedId
 {
     public Guid Id { get; set; }
     public string Text { get; set; } = default!;

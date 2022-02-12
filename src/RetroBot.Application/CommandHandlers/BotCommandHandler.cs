@@ -14,7 +14,7 @@ internal sealed class BotCommandHandler
     private readonly Messages messages;
 
     private IDictionary<string, CommandHandler?> menuCommandHandlers;
-    private IDictionary<UserState, CommandHandler?> stateCommandHandlers;
+    private IDictionary<UserState, CommandHandler?> processCommandHandlers;
 
     public BotCommandHandler(ITelegramBotClient bot, IStorage storage, Messages messages)
     {
@@ -43,7 +43,7 @@ internal sealed class BotCommandHandler
             }
         };
         
-        stateCommandHandlers = new Dictionary<UserState, CommandHandler?>
+        processCommandHandlers = new Dictionary<UserState, CommandHandler?>
         {
             {
                 UserState.OnInputTeamId,
@@ -71,7 +71,7 @@ internal sealed class BotCommandHandler
                     return;
                 
                 var containsState =
-                    stateCommandHandlers.TryGetValue(user.State, out commandHandler);
+                    processCommandHandlers.TryGetValue(user.State, out commandHandler);
                 if (!containsState || commandHandler is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
