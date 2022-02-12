@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using RetroBot.Application.Jobs;
+using RetroBot.Application.QuizProcessors;
+using RetroBot.Application.QuizProcessors.Interfaces;
 using Telegram.Bot;
 
 namespace RetroBot.Application;
@@ -21,6 +23,7 @@ public static class DependencyRegistration
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
             .AddSingleton(messages)
+            .AddTransient<IQuizProcessor, QuizProcessor>()
             .ConfigureJobs();
 
         return services;
@@ -38,7 +41,8 @@ public static class DependencyRegistration
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
                     .WithIdentity("QuestionJob-trigger")
-                    .WithCronSchedule("0/50 * * * * ?"));
+                    //.StartAt(DateTime.Now.AddMinutes(5))
+                    .WithCronSchedule("0 0/5 * * * ?"));
             });
         
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

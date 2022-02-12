@@ -25,19 +25,17 @@ internal sealed class InputTeamleadEmailHandler : CommandHandler
             throw new BusinessException(messages.UnknownUser);
         }
         
+        var updatedUser = await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
         var inputTeamleadEmail = info.Message.Text;
         var newTeam = new Team
         {
-            Id = Guid.NewGuid(),
             TeamLeadEmail = inputTeamleadEmail,
             Users = new List<User>
             {
-                user
+                updatedUser
             }
         };
-        
         await storage.TryAddTeamAsync(newTeam);
-        await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
 
         return string.Format(messages.SuccessfullyCreateTeam, newTeam.Id);
     }

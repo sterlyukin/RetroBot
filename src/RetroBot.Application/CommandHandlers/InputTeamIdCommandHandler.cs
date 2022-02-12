@@ -36,8 +36,8 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler
             throw new BusinessException(messages.UnknownUser);
         }
 
-        await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
-        await storage.TryAddUserToTeam(team, user);
+        var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
+        await storage.TryAddUserToTeam(team, updatedUser);
 
         return messages.SuccessfullyJoinTeam;
     }

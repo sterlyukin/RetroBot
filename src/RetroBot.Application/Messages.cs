@@ -15,7 +15,7 @@ public sealed class Messages
     public string StartMenuCommand { get; set; } = default!;
     public string StartMenuCommandDescription { get; set; } = default!;
     public string JoinTeamMenuCommand { get; set; } = default!;
-    public string JoinTeamMenuCommandDescription { get; set; } = default;
+    public string JoinTeamMenuCommandDescription { get; set; } = default!;
     public string CreateTeamMenuCommand { get; set; } = default!;
     public string CreateTeamMenuCommandDescription { get; set; } = default!;
     

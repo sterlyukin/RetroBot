@@ -53,10 +53,10 @@ internal sealed class BotCommandHandler
                 UserState.OnInputTeamleadEmail,
                 new InputTeamleadEmailHandler(storage, messages)
             },
-            {
+            /*{
                 UserState.Completed,
                 new CompletedCommandHandler(storage, messages)
-            },
+            },*/
         };
     }
     
@@ -70,6 +70,9 @@ internal sealed class BotCommandHandler
                 var user = await storage.TryGetByUserIdAsync(e.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
+                
+                if(user.State == UserState.Completed)
+                    return;
                 
                 var containsState =
                     stateCommandHandlers.TryGetValue(user.State, out commandHandler);

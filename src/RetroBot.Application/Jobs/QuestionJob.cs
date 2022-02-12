@@ -1,6 +1,6 @@
 ﻿using Quartz;
-using RetroBot.Application.CommandHandlers;
 using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.QuizProcessors.Interfaces;
 using RetroBot.Core;
 using Telegram.Bot;
 
@@ -11,11 +11,13 @@ public class QuestionJob : IJob
 {
     private readonly ITelegramBotClient bot;
     private readonly IStorage storage;
+    private readonly IQuizProcessor quizProcessor;
 
-    public QuestionJob(ITelegramBotClient bot, IStorage storage)
+    public QuestionJob(ITelegramBotClient bot, IStorage storage, IQuizProcessor quizProcessor)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.quizProcessor = quizProcessor ?? throw new ArgumentNullException(nameof(quizProcessor));
     }
     
     public async Task Execute(IJobExecutionContext context)
@@ -27,11 +29,7 @@ public class QuestionJob : IJob
             {
                 if (user.State == UserState.Completed)
                 {
-                    var questions = await storage.TryGetQuestionsAsync();
-                    foreach (var question in questions)
-                    {
-                        await bot.SendTextMessageAsync(user.Id, question.Text);
-                    }
+                    await quizProcessor.Execute(user.Id, string.Empty);
                 }
             }            
         }

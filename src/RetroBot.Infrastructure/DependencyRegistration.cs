@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Infrastructure.StorageClient;
-using RetroBot.Infrastructure.StorageClient.Repositories;
+using RetroBot.Infrastructure.StorageClient.Mappers;
 
 namespace RetroBot.Infrastructure;
 
@@ -11,14 +13,29 @@ public static class DependencyRegistration
         this IServiceCollection services,
         DatabaseOptions databaseOptions)
     {
+        ConfigureBson();
+        
         services
             .AddSingleton(databaseOptions)
-            .AddDbContext<RetroBotDbContext>()
-            .AddSingleton<IUserRepository, UserRepository>()
-            .AddSingleton<ITeamRepository, TeamRepository>()
-            .AddSingleton<IQuestionRepository, QuestionRepository>()
+            .AddSingleton<IMongoClient>(new MongoClient(databaseOptions.ConnectionString))
+            .AddSingleton(MongoFactory(databaseOptions))
             .AddSingleton<IStorage, DatabaseStorage>();
 
         return services;
+    }
+    
+    private static Func<IServiceProvider, DatabaseClient> MongoFactory(DatabaseOptions options)
+    {
+        return sp =>
+        {
+            var client = sp.GetRequiredService<IMongoClient>();
+            return new DatabaseClient(client, options);
+        };
+    }
+
+    private static void ConfigureBson()
+    {
+        BsonClassMap.RegisterClassMap(new UserMapper());
+        BsonClassMap.RegisterClassMap(new TeamMapper());
     }
 }
