@@ -21,7 +21,6 @@ internal sealed class StartCommandHandler : CommandHandler
         var contactName = GetContactName(info);
         var greetingMessage = string.Format(messages.Greeting, contactName);
 
-        var questions = await storage.TryGetQuestionsAsync();
         var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is not null)
         {
