@@ -1,8 +1,7 @@
 ﻿using Quartz;
 using RetroBot.Application.Contracts.Services.Storage;
-using RetroBot.Application.QuizProcessors.Interfaces;
+using RetroBot.Application.QuizProcessors;
 using RetroBot.Core;
-using Telegram.Bot;
 
 namespace RetroBot.Application.Jobs;
 
@@ -20,6 +19,17 @@ public class QuestionJob : IJob
     
     public async Task Execute(IJobExecutionContext context)
     {
+        await RemoveObsoleteAnswers();
+        await GetUpToDateAnswers();
+    }
+
+    private async Task RemoveObsoleteAnswers()
+    {
+        await storage.TryDeleteAnswersAsync();
+    }
+
+    private async Task GetUpToDateAnswers()
+    {
         var teams = await storage.TryGetTeamsAsync();
         foreach (var team in teams)
         {
@@ -27,10 +37,9 @@ public class QuestionJob : IJob
             {
                 if (user.State == UserState.Completed)
                 {
-                    await quizProcessor.Execute(user.Id, string.Empty);
+                    await quizProcessor.ExecuteAsync(user.Id, string.Empty);
                 }
             }            
         }
-        
     }
 }

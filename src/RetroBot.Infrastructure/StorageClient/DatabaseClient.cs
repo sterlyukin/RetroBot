@@ -44,7 +44,7 @@ public class DatabaseClient
         var entities = collection.GetAllAsync().Result;
         if (entities.Any())
         {
-            collection.DeleteAllAsync().RunSynchronously();
+            collection.DeleteAllAsync().Wait();
         }
     }
 

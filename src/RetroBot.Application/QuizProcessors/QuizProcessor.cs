@@ -1,5 +1,4 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
-using RetroBot.Application.QuizProcessors.Interfaces;
 using RetroBot.Core;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -20,10 +19,10 @@ public sealed class QuizProcessor : IQuizProcessor
     
     private async void BotOnOnMessage(object? sender, MessageEventArgs e)
     {
-        await Execute(e.Message.From.Id, e.Message.Text);
+        await ExecuteAsync(e.Message.From.Id, e.Message.Text);
     }
 
-    public async Task Execute(long userId, string answer)
+    public async Task ExecuteAsync(long userId, string answer)
     {
         var user = await storage.TryGetByUserIdAsync(userId);
         if (user is null || user.State is not UserState.Completed)

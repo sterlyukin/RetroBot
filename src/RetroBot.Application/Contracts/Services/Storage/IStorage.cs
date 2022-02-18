@@ -16,4 +16,5 @@ public interface IStorage
     Task<IList<Answer>> TryGetAnswersByUserId(long userId);
     Task TryAddAnswerAsync(Answer answer);
     Task TryUpdateAnswerAsync(Answer answer);
+    Task TryDeleteAnswersAsync();
 }

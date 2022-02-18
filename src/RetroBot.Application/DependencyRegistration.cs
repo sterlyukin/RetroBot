@@ -2,7 +2,6 @@
 using Quartz;
 using RetroBot.Application.Jobs;
 using RetroBot.Application.QuizProcessors;
-using RetroBot.Application.QuizProcessors.Interfaces;
 using Telegram.Bot;
 
 namespace RetroBot.Application;

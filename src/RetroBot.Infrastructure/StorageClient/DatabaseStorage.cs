@@ -74,4 +74,9 @@ public class DatabaseStorage : IStorage
     {
         await databaseClient.Answers.UpdateByGeneratedIdAsync(answer);
     }
+
+    public async Task TryDeleteAnswersAsync()
+    {
+        await databaseClient.Answers.DeleteAllAsync();
+    }
 }
