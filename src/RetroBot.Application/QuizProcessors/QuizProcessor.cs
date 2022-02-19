@@ -24,27 +24,48 @@ public sealed class QuizProcessor : IQuizProcessor
 
     public async Task ExecuteAsync(long userId, string answer)
     {
+        var semaphoreObject = new Semaphore(1, 1, name: "Question job");
+        semaphoreObject.WaitOne();
         var user = await storage.TryGetByUserIdAsync(userId);
         if (user is null || user.State is not UserState.Completed)
+        {
+            semaphoreObject.Release();
             return;
-
+        }
+        
         var questions = await storage.TryGetQuestionsAsync();
         var userAnswers = await storage.TryGetAnswersByUserId(userId);
 
-        var lastAnsweredQustion = userAnswers.FirstOrDefault(userAnswer => string.IsNullOrEmpty(userAnswer.Text));
-        if (lastAnsweredQustion is not null && !string.IsNullOrEmpty(answer))
+        if (userAnswers.Any(userAnswer => string.Equals(userAnswer.Text, answer)))
         {
-            lastAnsweredQustion.Text = answer;
-            await storage.TryUpdateAnswerAsync(lastAnsweredQustion);
+            semaphoreObject.Release();
+            return;
         }
 
+        await SetPreviousAnswerAsync(answer, userId, userAnswers);
+        await AskQuestionAsync(userId, questions, userAnswers);
+
+        semaphoreObject.Release();
+    }
+
+    private async Task SetPreviousAnswerAsync(string answer, long userId, IList<Answer> userAnswers)
+    {
+        var lastUnansweredQuestion = userAnswers.FirstOrDefault(userAnswer =>
+            userAnswer.UserId == userId && string.IsNullOrEmpty(userAnswer.Text));
+        if (lastUnansweredQuestion is not null && !string.IsNullOrEmpty(answer))
+        {
+            lastUnansweredQuestion.Text = answer;
+            await storage.TryUpdateAnswerAsync(lastUnansweredQuestion);
+        }
+    }
+
+    private async Task AskQuestionAsync(long userId, IList<Question> questions, IList<Answer> userAnswers)
+    {
         var unAnsweredQuestion =
             questions.FirstOrDefault(question =>
                 userAnswers.All(currentAnswer => currentAnswer.QuestionId != question.Id));
         if (unAnsweredQuestion is not null)
         {
-            await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
-
             var answerObj = new Answer
             {
                 Id = Guid.NewGuid(),
@@ -52,7 +73,10 @@ public sealed class QuizProcessor : IQuizProcessor
                 Text = string.Empty,
                 UserId = userId
             };
+            
             await storage.TryAddAnswerAsync(answerObj);
+
+            await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
         }
     }
 }
