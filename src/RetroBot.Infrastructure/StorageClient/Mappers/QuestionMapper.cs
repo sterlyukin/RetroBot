@@ -5,7 +5,7 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient.Mappers;
 
-public class QuestionMapper : BsonClassMap<Question>
+internal class QuestionMapper : BsonClassMap<Question>
 {
     public QuestionMapper()
     {

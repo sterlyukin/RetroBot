@@ -5,7 +5,7 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient.Mappers;
 
-public class UserMapper : BsonClassMap<User>
+internal class UserMapper : BsonClassMap<User>
 {
     public UserMapper()
     {
