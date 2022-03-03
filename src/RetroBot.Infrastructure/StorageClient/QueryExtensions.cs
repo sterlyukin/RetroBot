@@ -3,7 +3,7 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient;
 
-public static class QueryExtensions
+internal static class QueryExtensions
 {
     public static async Task<IList<TType>> GetAllAsync<TType>(this IMongoCollection<TType> collection)
     {
