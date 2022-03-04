@@ -4,79 +4,84 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient;
 
-public class DatabaseStorage : IStorage
+internal class DatabaseStorage : IStorage
 {
-    private readonly DatabaseClient databaseClient;
+    private readonly Database database;
 
-    public DatabaseStorage(DatabaseClient databaseClient)
+    public DatabaseStorage(Database database)
     {
-        this.databaseClient = databaseClient ?? throw new ArgumentNullException(nameof(databaseClient));
+        this.database = database ?? throw new ArgumentNullException(nameof(database));
     }
     
     public async Task<IList<User>> TryGetUsersAsync()
     {
-        return await databaseClient.Users.GetAllAsync();
+        return await database.Users.GetAllAsync();
     }
 
     public async Task<IList<Team>> TryGetTeamsAsync()
     {
-        return await databaseClient.Teams.GetAllAsync();
+        return await database.Teams.GetAllAsync();
     }
 
     public async Task<User?> TryGetByUserIdAsync(long userId)
     {
-        return await databaseClient.Users.GetByIdAsync(userId);
+        return await database.Users.GetByIdAsync(userId);
     }
 
     public async Task<Team?> TryGetByTeamIdAsync(Guid teamId)
     {
-        return await databaseClient.Teams.GetByIdAsync(teamId);
+        return await database.Teams.GetByIdAsync(teamId);
     }
 
     public async Task TryAddUserAsync(User user)
     {
-        await databaseClient.Users.InsertOneAsync(user);
+        await database.Users.InsertOneAsync(user);
     }
 
     public async Task TryAddTeamAsync(Team team)
     {
-        await databaseClient.Teams.InsertOneAsync(team);
+        await database.Teams.InsertOneAsync(team);
     }
 
     public async Task<User> TryUpdateUserAsync(User user)
     {
-        await databaseClient.Users.UpdateByIssuedIdAsync(user);
-        return await databaseClient.Users.GetByIdAsync(user.Id);
+        await database.Users.UpdateByIssuedIdAsync(user);
+        return await database.Users.GetByIdAsync(user.Id);
     }
 
     public async Task TryAddUserToTeam(Team team, User user)
     {
         team.Users.Add(user);
-        await databaseClient.Teams.UpdateByGeneratedIdAsync(team);
+        await database.Teams.UpdateByGeneratedIdAsync(team);
     }
 
     public async Task<IList<Question>> TryGetQuestionsAsync()
     {
-        return await databaseClient.Questions.GetAllAsync();
+        return await database.Questions.GetAllAsync();
     }
 
     public async Task<IList<Answer>> TryGetAnswersByUserId(long userId)
     {
-        return await databaseClient.Answers.Find(answer => answer.UserId == userId).ToListAsync();
+        return await database.Answers.Find(answer => answer.UserId == userId).ToListAsync();
     }
 
     public async Task TryAddAnswerAsync(Answer answer)
     {
-        await databaseClient.Answers.InsertOneAsync(answer);
+        await database.Answers.InsertOneAsync(answer);
     }
 
     public async Task TryUpdateAnswerAsync(Answer answer)
     {
-        await databaseClient.Answers.UpdateByGeneratedIdAsync(answer);
+        await database.Answers.UpdateByGeneratedIdAsync(answer);
     }
 
     public async Task TryDeleteAnswersAsync()
     {
-        await databaseClient.Answers.DeleteAllAsync();
+        await database.Answers.DeleteAllAsync();
+    }
+
+    public async Task<IList<Answer>> TryGetAnswersAsync()
+    {
+        return await database.Answers.GetAllAsync();
     }
 }

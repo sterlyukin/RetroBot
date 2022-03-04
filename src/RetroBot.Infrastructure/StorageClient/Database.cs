@@ -3,7 +3,7 @@ using RetroBot.Core;
 
 namespace RetroBot.Infrastructure.StorageClient;
 
-public class DatabaseClient
+internal class Database
 {
     private readonly IMongoClient client;
     private readonly DatabaseOptions options;
@@ -13,7 +13,7 @@ public class DatabaseClient
     public IMongoCollection<Question> Questions => GetCollection<Question>();
     public IMongoCollection<Answer> Answers => GetCollection<Answer>();
 
-    public DatabaseClient(
+    public Database(
         IMongoClient client,
         DatabaseOptions options)
     {

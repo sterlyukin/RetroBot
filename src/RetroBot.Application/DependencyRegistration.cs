@@ -22,7 +22,7 @@ public static class DependencyRegistration
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
             .AddSingleton(messages)
-            .AddTransient<IQuizProcessor, QuizProcessor>()
+            .AddSingleton<IQuizProcessor, QuizProcessor>()
             .ConfigureJobs();
 
         return services;
@@ -40,7 +40,7 @@ public static class DependencyRegistration
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
                     .WithIdentity("QuestionJob-trigger")
-                    .WithCronSchedule("0 0/5 * * * ?"));
+                    .WithCronSchedule("0 0/1 * * * ?"));
             });
         
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
