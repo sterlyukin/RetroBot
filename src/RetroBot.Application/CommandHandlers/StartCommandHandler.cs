@@ -1,6 +1,7 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;

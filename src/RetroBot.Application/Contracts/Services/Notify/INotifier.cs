@@ -1,4 +1,5 @@
 ﻿using RetroBot.Core;
+using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Contracts.Services.Notify;
 

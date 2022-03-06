@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Report;
 

@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.StorageClient;
 

@@ -12,7 +12,7 @@ public class Program
         Thread.Sleep(int.MaxValue);
     }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureServices((hostContext, services) =>
             {

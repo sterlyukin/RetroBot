@@ -1,4 +1,4 @@
-﻿namespace RetroBot.Core;
+﻿namespace RetroBot.Core.Entities;
 
 public sealed class Question : IWithGeneratedId
 {

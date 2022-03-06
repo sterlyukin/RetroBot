@@ -2,6 +2,7 @@
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;

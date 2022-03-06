@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.StorageClient.Mappers;
 

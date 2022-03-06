@@ -1,6 +1,7 @@
 ﻿using RetroBot.Application.Contracts.Services.Notify;
 using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Core;
+using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Report;
 
