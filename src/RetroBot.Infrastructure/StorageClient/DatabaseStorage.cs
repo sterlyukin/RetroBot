@@ -49,7 +49,7 @@ internal class DatabaseStorage : IStorage
         return await database.Users.GetByIdAsync(user.Id);
     }
 
-    public async Task TryAddUserToTeam(Team team, User user)
+    public async Task TryAddUserToTeamAsync(Team team, User user)
     {
         team.Users.Add(user);
         await database.Teams.UpdateByGeneratedIdAsync(team);
@@ -60,7 +60,7 @@ internal class DatabaseStorage : IStorage
         return await database.Questions.GetAllAsync();
     }
 
-    public async Task<IList<Answer>> TryGetAnswersByUserId(long userId)
+    public async Task<IList<Answer>> TryGetAnswersByUserIdAsync(long userId)
     {
         return await database.Answers.Find(answer => answer.UserId == userId).ToListAsync();
     }
@@ -83,5 +83,19 @@ internal class DatabaseStorage : IStorage
     public async Task<IList<Answer>> TryGetAnswersAsync()
     {
         return await database.Answers.GetAllAsync();
+    }
+
+    public async Task<IList<Answer>> TryGetAnswersByTeamIdAsync(Guid teamId)
+    {
+        var team = await database.Teams.GetByIdAsync(teamId);
+        var teamAnswers = new List<Answer>();
+
+        foreach (var user in team.Users)
+        {
+            var userAnswers = await TryGetAnswersByUserIdAsync(user.Id);
+            teamAnswers.AddRange(userAnswers);
+        }
+
+        return teamAnswers;
     }
 }

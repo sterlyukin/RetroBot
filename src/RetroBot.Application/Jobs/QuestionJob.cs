@@ -1,7 +1,7 @@
 ﻿using Quartz;
-using RetroBot.Application.Contracts.Services.Email;
 using RetroBot.Application.Contracts.Services.Storage;
-using RetroBot.Application.QuizProcessors;
+using RetroBot.Application.Quiz;
+using RetroBot.Application.Report;
 using RetroBot.Core;
 
 namespace RetroBot.Application.Jobs;
@@ -10,26 +10,28 @@ namespace RetroBot.Application.Jobs;
 public class QuestionJob : IJob
 {
     private readonly IStorage storage;
-    private readonly IQuizProcessor quizProcessor;
-    private readonly IEmailNotifier emailNotifier;
+    private readonly QuizProcessor quizProcessor;
+    private readonly ReportManager reportManager;
 
-    public QuestionJob(IStorage storage, IQuizProcessor quizProcessor, IEmailNotifier emailNotifier)
+    public QuestionJob(IStorage storage, QuizProcessor quizProcessor, ReportManager reportManager)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
         this.quizProcessor = quizProcessor ?? throw new ArgumentNullException(nameof(quizProcessor));
-        this.emailNotifier = emailNotifier ?? throw new ArgumentNullException(nameof(emailNotifier));
+        this.reportManager = reportManager ?? throw new ArgumentNullException(nameof(reportManager));
     }
     
     public async Task Execute(IJobExecutionContext context)
     {
-        await SendAnswersAsync();
+        await SendAnswersNotificationsAsync();
         await RemoveObsoleteAnswersAsync();
         await GetUpToDateAnswersAsync();
     }
 
-    private async Task SendAnswersAsync()
+    private async Task SendAnswersNotificationsAsync()
     {
-        await emailNotifier.ExecuteAsync();
+        var answers = await storage.TryGetAnswersAsync();
+        if (answers.Any())
+            await reportManager.ExecuteAsync();
     }
 
     private async Task RemoveObsoleteAnswersAsync()

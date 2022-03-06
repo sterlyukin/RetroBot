@@ -11,11 +11,12 @@ public interface IStorage
     Task TryAddUserAsync(User user);
     Task TryAddTeamAsync(Team team);
     Task<User> TryUpdateUserAsync(User user);
-    Task TryAddUserToTeam(Team team, User user);
+    Task TryAddUserToTeamAsync(Team team, User user);
     Task<IList<Question>> TryGetQuestionsAsync();
-    Task<IList<Answer>> TryGetAnswersByUserId(long userId);
+    Task<IList<Answer>> TryGetAnswersByUserIdAsync(long userId);
     Task TryAddAnswerAsync(Answer answer);
     Task TryUpdateAnswerAsync(Answer answer);
     Task TryDeleteAnswersAsync();
     Task<IList<Answer>> TryGetAnswersAsync();
+    Task<IList<Answer>> TryGetAnswersByTeamIdAsync(Guid teamId);
 }

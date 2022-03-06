@@ -3,9 +3,9 @@ using RetroBot.Core;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
-namespace RetroBot.Application.QuizProcessors;
+namespace RetroBot.Application.Quiz;
 
-public sealed class QuizProcessor : IQuizProcessor
+public sealed class QuizProcessor
 {
     private readonly ITelegramBotClient bot;
     private readonly IStorage storage;
@@ -34,7 +34,7 @@ public sealed class QuizProcessor : IQuizProcessor
         }
         
         var questions = await storage.TryGetQuestionsAsync();
-        var userAnswers = await storage.TryGetAnswersByUserId(userId);
+        var userAnswers = await storage.TryGetAnswersByUserIdAsync(userId);
 
         if (userAnswers.Any(userAnswer => string.Equals(userAnswer.Text, answer)))
         {

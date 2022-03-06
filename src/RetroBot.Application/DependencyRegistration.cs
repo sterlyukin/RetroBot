@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using RetroBot.Application.Jobs;
-using RetroBot.Application.QuizProcessors;
+using RetroBot.Application.Quiz;
+using RetroBot.Application.Report;
 using Telegram.Bot;
 
 namespace RetroBot.Application;
@@ -22,7 +23,9 @@ public static class DependencyRegistration
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
             .AddSingleton(messages)
-            .AddSingleton<IQuizProcessor, QuizProcessor>()
+            .AddSingleton<ReportBuilder>()
+            .AddSingleton<ReportManager>()
+            .AddSingleton<QuizProcessor>()
             .ConfigureJobs();
 
         return services;
