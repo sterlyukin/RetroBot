@@ -18,13 +18,16 @@ public sealed class StateMachine
             .Permit(UserAction.PressedJoinTeam, UserState.OnInputTeamId);
 
         stateMachine.Configure(UserState.OnJoinBot)
-            .Permit(UserAction.PressedCreateTeam, UserState.OnInputTeamleadEmail);
+            .Permit(UserAction.PressedCreateTeam, UserState.OnInputTeamName);
+        
+        stateMachine.Configure(UserState.OnInputTeamName)
+            .Permit(UserAction.EnteredTeamName, UserState.OnInputTeamleadEmail);
+        
+        stateMachine.Configure(UserState.OnInputTeamleadEmail)
+            .Permit(UserAction.EnteredTeamleadEmail, UserState.Completed);
 
         stateMachine.Configure(UserState.OnInputTeamId)
             .Permit(UserAction.EnteredTeamId, UserState.Completed);
-
-        stateMachine.Configure(UserState.OnInputTeamleadEmail)
-            .Permit(UserAction.EnteredTeamleadEmail, UserState.Completed);
     }
 
     public UserState ChangeState(UserAction action)

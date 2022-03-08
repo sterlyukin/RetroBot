@@ -1,18 +1,17 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
-using RetroBot.Core;
 using RetroBot.Core.Entities;
 using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class InputTeamleadEmailHandler : CommandHandler
+internal sealed class InputTeamNameCommandHandler : CommandHandler
 {
     private readonly IStorage storage;
     private readonly Messages messages;
-
-    public InputTeamleadEmailHandler(IStorage storage, Messages messages) : base(storage, messages)
+    
+    public InputTeamNameCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
     {
         this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
@@ -24,12 +23,12 @@ internal sealed class InputTeamleadEmailHandler : CommandHandler
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
         
-        var updatedUser = await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamleadEmail);
-        var inputTeamleadEmail = info.Message.Text;
+        var updatedUser = await UpdateUserStateAsync(info.Message.From.Id, UserAction.EnteredTeamName);
+        var inputTeamName = info.Message.Text;
         var newTeam = new Team
         {
             Id = Guid.NewGuid(),
-            TeamLeadEmail = inputTeamleadEmail,
+            Name = inputTeamName,
             Users = new List<User>
             {
                 updatedUser
@@ -37,6 +36,6 @@ internal sealed class InputTeamleadEmailHandler : CommandHandler
         };
         await storage.TryAddTeamAsync(newTeam);
 
-        return string.Format(messages.SuccessfullyCreateTeam, newTeam.Id);
+        return string.Format(messages.SuggestionToEnterTeamleadEmail, newTeam.Id);
     }
 }

@@ -8,7 +8,7 @@ public class ReportBuilder
     public string Execute(Team team, IList<Question> questions, IList<Answer> teamAnswers)
     {
         StringBuilder report = new StringBuilder();
-        report.AppendLine($"Report for team with id = {team.Id}");
+        report.AppendLine($"Report for team with name = {team.Name}");
         report.AppendLine($"Teamlead email = {team.TeamLeadEmail}");
             
         foreach (var question in questions)

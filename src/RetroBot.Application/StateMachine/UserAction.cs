@@ -6,5 +6,6 @@ public enum UserAction
     PressedJoinTeam,
     PressedCreateTeam,
     EnteredTeamId,
+    EnteredTeamName,
     EnteredTeamleadEmail
 }

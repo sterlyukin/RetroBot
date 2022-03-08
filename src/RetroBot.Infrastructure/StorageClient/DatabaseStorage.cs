@@ -1,6 +1,5 @@
 ﻿using MongoDB.Driver;
 using RetroBot.Application.Contracts.Services.Storage;
-using RetroBot.Core;
 using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.StorageClient;
@@ -34,6 +33,11 @@ internal class DatabaseStorage : IStorage
         return await database.Teams.GetByIdAsync(teamId);
     }
 
+    public async Task<Team?> TryGetTeamByUserIdAsync(long userId)
+    {
+        return await database.Teams.Find(team => team.Users.Any(user => user.Id == userId)).FirstOrDefaultAsync();
+    }
+
     public async Task TryAddUserAsync(User user)
     {
         await database.Users.InsertOneAsync(user);
@@ -42,6 +46,11 @@ internal class DatabaseStorage : IStorage
     public async Task TryAddTeamAsync(Team team)
     {
         await database.Teams.InsertOneAsync(team);
+    }
+
+    public async Task TryUpdateTeamAsync(Team team)
+    {
+        await database.Teams.UpdateByGeneratedIdAsync(team);
     }
 
     public async Task<User> TryUpdateUserAsync(User user)
@@ -88,8 +97,8 @@ internal class DatabaseStorage : IStorage
 
     public async Task<IList<Answer>> TryGetAnswersByTeamIdAsync(Guid teamId)
     {
-        var team = await database.Teams.GetByIdAsync(teamId);
         var teamAnswers = new List<Answer>();
+        var team = await database.Teams.GetByIdAsync(teamId);
 
         foreach (var user in team.Users)
         {

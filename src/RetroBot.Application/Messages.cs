@@ -4,6 +4,7 @@ public sealed class Messages
 {
     public string Greeting { get; set; } = default!;
     public string SuggestionToEnterTeamId { get; set; } = default!;
+    public string SuggestionToEnterTeamName { get; set; } = default!;
     public string SuggestionToEnterTeamleadEmail { get; set; } = default!;
     public string SuccessfullyCreateTeam { get; set; } = default!;
     public string SuccessfullyJoinTeam { get; set; } = default!;

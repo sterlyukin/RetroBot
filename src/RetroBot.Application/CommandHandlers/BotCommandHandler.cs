@@ -50,8 +50,12 @@ internal sealed class BotCommandHandler
                 new InputTeamIdCommandHandler(storage, messages)
             },
             {
+                UserState.OnInputTeamName,
+                new InputTeamNameCommandHandler(storage, messages)
+            },
+            {
                 UserState.OnInputTeamleadEmail,
-                new InputTeamleadEmailHandler(storage, messages)
+                new InputTeamleadEmailCommandHandler(storage, messages)
             },
         };
     }

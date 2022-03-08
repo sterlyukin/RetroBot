@@ -17,6 +17,6 @@ internal sealed class CreateTeamCommandHandler : CommandHandler
     {
         await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedCreateTeam);
 
-        return messages.SuggestionToEnterTeamleadEmail;
+        return messages.SuggestionToEnterTeamName;
     }
 }

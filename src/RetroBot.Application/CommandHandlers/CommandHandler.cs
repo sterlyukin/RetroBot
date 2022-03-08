@@ -1,7 +1,6 @@
 ﻿using RetroBot.Application.Contracts.Services.Storage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
-using RetroBot.Core;
 using RetroBot.Core.Entities;
 using Telegram.Bot.Args;
 
@@ -30,5 +29,17 @@ internal abstract class CommandHandler
         user.State = stateMachine.ChangeState(action);
 
         return await storage.TryUpdateUserAsync(user);
+    }
+
+    protected async Task UpdateTeamIncludeUsersAsync(Team team, User user)
+    {
+        var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamleadEmail);
+        team.Users.ToList().ForEach(currentUser =>
+        {
+            if (currentUser.Id == updatedUser.Id)
+                currentUser.State = updatedUser.State;
+        });
+        
+        await storage.TryUpdateTeamAsync(team);
     }
 }
