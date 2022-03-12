@@ -10,16 +10,16 @@ namespace RetroBot.Application.CommandHandlers;
 internal sealed class BotCommandHandler
 {
     private readonly ITelegramBotClient bot;
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
     private readonly Messages messages;
 
     private IDictionary<string, CommandHandler?> menuCommandHandlers;
     private IDictionary<UserState, CommandHandler?> processCommandHandlers;
 
-    public BotCommandHandler(ITelegramBotClient bot, IStorage storage, Messages messages)
+    public BotCommandHandler(ITelegramBotClient bot, IStorageClient storageClient, Messages messages)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
         
         InitializeCommandHandlers();
@@ -31,15 +31,15 @@ internal sealed class BotCommandHandler
         {
             {
                 messages.StartMenuCommand,
-                new StartCommandHandler(storage, messages)
+                new StartCommandHandler(storageClient, messages)
             },
             {
                 messages.JoinTeamMenuCommand,
-                new JoinTeamCommandHandler(storage, messages)
+                new JoinTeamCommandHandler(storageClient, messages)
             },
             {
                 messages.CreateTeamMenuCommand,
-                new CreateTeamCommandHandler(storage, messages)
+                new CreateTeamCommandHandler(storageClient, messages)
             }
         };
         
@@ -47,15 +47,15 @@ internal sealed class BotCommandHandler
         {
             {
                 UserState.OnInputTeamId,
-                new InputTeamIdCommandHandler(storage, messages)
+                new InputTeamIdCommandHandler(storageClient, messages)
             },
             {
                 UserState.OnInputTeamName,
-                new InputTeamNameCommandHandler(storage, messages)
+                new InputTeamNameCommandHandler(storageClient, messages)
             },
             {
                 UserState.OnInputTeamleadEmail,
-                new InputTeamleadEmailCommandHandler(storage, messages)
+                new InputTeamleadEmailCommandHandler(storageClient, messages)
             },
         };
     }
@@ -67,7 +67,7 @@ internal sealed class BotCommandHandler
             var containsHandler = menuCommandHandlers.TryGetValue(e.Message.Text, out var commandHandler);
             if (!containsHandler || commandHandler is null)
             {
-                var user = await storage.TryGetByUserIdAsync(e.Message.From.Id);
+                var user = await storageClient.TryGetByUserIdAsync(e.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 

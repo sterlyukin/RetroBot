@@ -7,7 +7,7 @@ internal sealed class JoinTeamCommandHandler : CommandHandler
 {
     private readonly Messages messages;
     
-    public JoinTeamCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
+    public JoinTeamCommandHandler(IStorageClient storageClient, Messages messages) : base(storageClient, messages)
     {
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }

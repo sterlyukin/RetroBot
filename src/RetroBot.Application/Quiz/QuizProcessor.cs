@@ -9,12 +9,12 @@ namespace RetroBot.Application.Quiz;
 public sealed class QuizProcessor
 {
     private readonly ITelegramBotClient bot;
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
 
-    public QuizProcessor(ITelegramBotClient bot, IStorage storage)
+    public QuizProcessor(ITelegramBotClient bot, IStorageClient storageClient)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.bot.OnMessage += BotOnOnMessage;
     }
     
@@ -27,15 +27,15 @@ public sealed class QuizProcessor
     {
         var semaphoreObject = new Semaphore(1, 1, name: "Question job");
         semaphoreObject.WaitOne();
-        var user = await storage.TryGetByUserIdAsync(userId);
+        var user = await storageClient.TryGetByUserIdAsync(userId);
         if (user is null || user.State is not UserState.Completed)
         {
             semaphoreObject.Release();
             return;
         }
         
-        var questions = await storage.TryGetQuestionsAsync();
-        var userAnswers = await storage.TryGetAnswersByUserIdAsync(userId);
+        var questions = await storageClient.TryGetQuestionsAsync();
+        var userAnswers = await storageClient.TryGetAnswersByUserIdAsync(userId);
 
         if (userAnswers.Any(userAnswer => string.Equals(userAnswer.Text, answer)))
         {
@@ -56,7 +56,7 @@ public sealed class QuizProcessor
         if (lastUnansweredQuestion is not null && !string.IsNullOrEmpty(answer))
         {
             lastUnansweredQuestion.Text = answer;
-            await storage.TryUpdateAnswerAsync(lastUnansweredQuestion);
+            await storageClient.TryUpdateAnswerAsync(lastUnansweredQuestion);
         }
     }
 
@@ -75,7 +75,7 @@ public sealed class QuizProcessor
                 UserId = userId
             };
             
-            await storage.TryAddAnswerAsync(answerObj);
+            await storageClient.TryAddAnswerAsync(answerObj);
 
             await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
         }

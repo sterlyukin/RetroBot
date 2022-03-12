@@ -8,12 +8,12 @@ namespace RetroBot.Application.CommandHandlers;
 
 internal abstract class CommandHandler
 {
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
     private readonly Messages messages;
 
-    protected CommandHandler(IStorage storage, Messages messages)
+    protected CommandHandler(IStorageClient storageClient, Messages messages)
     {
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
@@ -21,14 +21,14 @@ internal abstract class CommandHandler
 
     protected async Task<User> UpdateUserStateAsync(long userId, UserAction action)
     {
-        var user = await storage.TryGetByUserIdAsync(userId);
+        var user = await storageClient.TryGetByUserIdAsync(userId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var stateMachine = new StateMachine.StateMachine(user.State);
         user.State = stateMachine.ChangeState(action);
 
-        return await storage.TryUpdateUserAsync(user);
+        return await storageClient.TryUpdateUserAsync(user);
     }
 
     protected async Task UpdateTeamIncludeUsersAsync(Team team, User user)
@@ -40,6 +40,6 @@ internal abstract class CommandHandler
                 currentUser.State = updatedUser.State;
         });
         
-        await storage.TryUpdateTeamAsync(team);
+        await storageClient.TryUpdateTeamAsync(team);
     }
 }

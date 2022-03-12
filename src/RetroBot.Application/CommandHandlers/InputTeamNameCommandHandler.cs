@@ -8,18 +8,18 @@ namespace RetroBot.Application.CommandHandlers;
 
 internal sealed class InputTeamNameCommandHandler : CommandHandler
 {
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
     private readonly Messages messages;
     
-    public InputTeamNameCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
+    public InputTeamNameCommandHandler(IStorageClient storageClient, Messages messages) : base(storageClient, messages)
     {
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
     {
-        var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await storageClient.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
         
@@ -34,7 +34,7 @@ internal sealed class InputTeamNameCommandHandler : CommandHandler
                 updatedUser
             }
         };
-        await storage.TryAddTeamAsync(newTeam);
+        await storageClient.TryAddTeamAsync(newTeam);
 
         return string.Format(messages.SuggestionToEnterTeamleadEmail, newTeam.Id);
     }

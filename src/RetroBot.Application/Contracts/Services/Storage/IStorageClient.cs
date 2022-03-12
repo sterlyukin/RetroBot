@@ -1,9 +1,8 @@
-﻿using RetroBot.Core;
-using RetroBot.Core.Entities;
+﻿using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Contracts.Services.Storage;
 
-public interface IStorage
+public interface IStorageClient
 {
     Task<IList<User>> TryGetUsersAsync();
     Task<IList<Team>> TryGetTeamsAsync();

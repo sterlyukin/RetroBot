@@ -4,11 +4,11 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.StorageClient;
 
-internal class DatabaseStorage : IStorage
+internal class DatabaseStorageClient : IStorageClient
 {
     private readonly Database database;
 
-    public DatabaseStorage(Database database)
+    public DatabaseStorageClient(Database database)
     {
         this.database = database ?? throw new ArgumentNullException(nameof(database));
     }

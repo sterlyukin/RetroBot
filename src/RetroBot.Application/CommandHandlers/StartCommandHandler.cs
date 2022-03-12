@@ -8,12 +8,12 @@ namespace RetroBot.Application.CommandHandlers;
 
 internal sealed class StartCommandHandler : CommandHandler
 {
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
     private readonly Messages messages;
     
-    public StartCommandHandler(IStorage storage, Messages messages) : base(storage, messages)
+    public StartCommandHandler(IStorageClient storageClient, Messages messages) : base(storageClient, messages)
     {
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
@@ -22,15 +22,15 @@ internal sealed class StartCommandHandler : CommandHandler
         var contactName = GetContactName(info);
         var greetingMessage = string.Format(messages.Greeting, contactName);
 
-        var user = await storage.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await storageClient.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is not null)
         {
             user.State = UserState.OnStartMessage;
-            await storage.TryUpdateUserAsync(user);
+            await storageClient.TryUpdateUserAsync(user);
         }
         else
         {
-            await storage.TryAddUserAsync(new User
+            await storageClient.TryAddUserAsync(new User
             {
                 Id = info.Message.From.Id,
                 State = UserState.OnStartMessage,

@@ -25,7 +25,7 @@ public static class DependencyRegistration
             .AddSingleton(emailOptions)
             .AddSingleton<IMongoClient>(new MongoClient(databaseOptions.ConnectionString))
             .AddSingleton(MongoFactory(databaseOptions))
-            .AddSingleton<IStorage, DatabaseStorage>()
+            .AddSingleton<IStorageClient, DatabaseStorageClient>()
             .AddSingleton<INotifier, EmailNotifier>();
         
         ConfigureEmailNotifier(services, emailOptions);

@@ -8,20 +8,20 @@ namespace RetroBot.Application.Builder;
 
 public class BotClient : IHostedService
 {
-    private readonly IStorage storage;
+    private readonly IStorageClient storageClient;
     private readonly ITelegramBotClient bot;
     private readonly Messages messages;
 
-    public BotClient(IStorage storage, ITelegramBotClient bot, Messages messages)
+    public BotClient(IStorageClient storageClient, ITelegramBotClient bot, Messages messages)
     {
-        this.storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var botCommandHandler = new BotCommandHandler(bot, storage, messages);
+        var botCommandHandler = new BotCommandHandler(bot, storageClient, messages);
         bot.OnMessage += botCommandHandler.OnReceiveMessage;
         await InitializeBotCommandsAsync(bot);
         
