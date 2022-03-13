@@ -1,4 +1,4 @@
-﻿using RetroBot.Application.Contracts.Services.Storage;
+﻿using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.StateMachine;
 using Telegram.Bot.Args;
 
@@ -8,7 +8,10 @@ internal sealed class CreateTeamCommandHandler : CommandHandler
 {
     private readonly Messages messages;
     
-    public CreateTeamCommandHandler(IStorageClient storageClient, Messages messages) : base(storageClient, messages)
+    public CreateTeamCommandHandler(
+        IUserRepository userRepository,
+        ITeamRepository teamRepository,
+        Messages messages) : base(userRepository, teamRepository, messages)
     {
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }

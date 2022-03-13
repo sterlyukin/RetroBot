@@ -1,19 +1,23 @@
-﻿using RetroBot.Application.Contracts.Services.Storage;
+﻿using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 
 namespace RetroBot.Application.CommandHandlers;
 
 internal sealed class InputTeamIdCommandHandler : CommandHandler
 {
-    private readonly IStorageClient storageClient;
+    private readonly IUserRepository userRepository;
+    private readonly ITeamRepository teamRepository;
     private readonly Messages messages;
     
-    public InputTeamIdCommandHandler(IStorageClient storageClient, Messages messages) : base(storageClient, messages)
+    public InputTeamIdCommandHandler(
+        IUserRepository userRepository,
+        ITeamRepository teamRepository,
+        Messages messages) : base(userRepository, teamRepository, messages)
     {
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
@@ -22,16 +26,16 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler
         if (!Guid.TryParse(info.Message.Text, out var teamId))
             throw new BusinessException(messages.InvalidTeamId);
 
-        var team = await storageClient.TryGetByTeamIdAsync(teamId);
+        var team = await teamRepository.TryGetByTeamIdAsync(teamId);
         if (team is null)
             throw new BusinessException( messages.NonexistentTeamId);
 
-        var user = await storageClient.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await userRepository.TryGetByUserIdAsync(info.Message.From.Id);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
-        await storageClient.TryAddUserToTeamAsync(team, updatedUser);
+        await teamRepository.TryAddUserToTeamAsync(team, updatedUser);
 
         return messages.SuccessfullyJoinTeam;
     }

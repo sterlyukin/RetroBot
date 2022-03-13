@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using RetroBot.Application;
 using RetroBot.Infrastructure;
+using RetroBot.Infrastructure.DataStorageClient;
 using RetroBot.Infrastructure.EmailClient;
-using RetroBot.Infrastructure.StorageClient;
 using RetroBot.Launcher.Infrastructure;
 
 namespace RetroBot.Launcher;

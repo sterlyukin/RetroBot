@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RetroBot.Application.Builder;
+using RetroBot.Application;
 
 namespace RetroBot.Launcher;
 

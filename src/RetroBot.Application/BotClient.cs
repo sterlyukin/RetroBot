@@ -1,27 +1,33 @@
 ﻿using Microsoft.Extensions.Hosting;
 using RetroBot.Application.CommandHandlers;
-using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Contracts.Services.DataStorage;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace RetroBot.Application.Builder;
+namespace RetroBot.Application;
 
 public class BotClient : IHostedService
 {
-    private readonly IStorageClient storageClient;
+    private readonly IUserRepository userRepository;
+    private readonly ITeamRepository teamRepository;
     private readonly ITelegramBotClient bot;
     private readonly Messages messages;
 
-    public BotClient(IStorageClient storageClient, ITelegramBotClient bot, Messages messages)
+    public BotClient(
+        IUserRepository userRepository,
+        ITeamRepository teamRepository,
+        ITelegramBotClient bot,
+        Messages messages)
     {
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var botCommandHandler = new BotCommandHandler(bot, storageClient, messages);
+        var botCommandHandler = new BotCommandHandler(bot, userRepository, teamRepository, messages);
         bot.OnMessage += botCommandHandler.OnReceiveMessage;
         await InitializeBotCommandsAsync(bot);
         

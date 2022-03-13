@@ -1,4 +1,4 @@
-﻿using RetroBot.Application.Contracts.Services.Storage;
+﻿using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Core;
 using RetroBot.Core.Entities;
 using Telegram.Bot;
@@ -9,12 +9,20 @@ namespace RetroBot.Application.Quiz;
 public sealed class QuizProcessor
 {
     private readonly ITelegramBotClient bot;
-    private readonly IStorageClient storageClient;
+    private readonly IUserRepository userRepository;
+    private readonly IQuestionRepository questionRepository;
+    private readonly IAnswerRepository answerRepository;
 
-    public QuizProcessor(ITelegramBotClient bot, IStorageClient storageClient)
+    public QuizProcessor(
+        ITelegramBotClient bot,
+        IUserRepository userRepository,
+        IQuestionRepository questionRepository,
+        IAnswerRepository answerRepository)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.questionRepository = questionRepository ?? throw new ArgumentNullException(nameof(questionRepository));
+        this.answerRepository = answerRepository ?? throw new ArgumentNullException(nameof(answerRepository));
         this.bot.OnMessage += BotOnOnMessage;
     }
     
@@ -27,15 +35,15 @@ public sealed class QuizProcessor
     {
         var semaphoreObject = new Semaphore(1, 1, name: "Question job");
         semaphoreObject.WaitOne();
-        var user = await storageClient.TryGetByUserIdAsync(userId);
+        var user = await userRepository.TryGetByUserIdAsync(userId);
         if (user is null || user.State is not UserState.Completed)
         {
             semaphoreObject.Release();
             return;
         }
         
-        var questions = await storageClient.TryGetQuestionsAsync();
-        var userAnswers = await storageClient.TryGetAnswersByUserIdAsync(userId);
+        var questions = await questionRepository.TryGetQuestionsAsync();
+        var userAnswers = await answerRepository.TryGetAnswersByUserIdAsync(userId);
 
         if (userAnswers.Any(userAnswer => string.Equals(userAnswer.Text, answer)))
         {
@@ -56,7 +64,7 @@ public sealed class QuizProcessor
         if (lastUnansweredQuestion is not null && !string.IsNullOrEmpty(answer))
         {
             lastUnansweredQuestion.Text = answer;
-            await storageClient.TryUpdateAnswerAsync(lastUnansweredQuestion);
+            await answerRepository.TryUpdateAnswerAsync(lastUnansweredQuestion);
         }
     }
 
@@ -75,7 +83,7 @@ public sealed class QuizProcessor
                 UserId = userId
             };
             
-            await storageClient.TryAddAnswerAsync(answerObj);
+            await answerRepository.TryAddAnswerAsync(answerObj);
 
             await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
         }

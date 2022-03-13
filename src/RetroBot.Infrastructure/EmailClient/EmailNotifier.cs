@@ -1,5 +1,5 @@
 ﻿using FluentEmail.Core;
-using RetroBot.Application.Contracts.Services.Notify;
+using RetroBot.Application.Contracts.Services.Notification;
 using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.EmailClient;

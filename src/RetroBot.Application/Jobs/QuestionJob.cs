@@ -1,5 +1,5 @@
 ﻿using Quartz;
-using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Quiz;
 using RetroBot.Application.Report;
 using RetroBot.Core;
@@ -9,13 +9,19 @@ namespace RetroBot.Application.Jobs;
 [DisallowConcurrentExecution]
 public class QuestionJob : IJob
 {
-    private readonly IStorageClient storageClient;
+    private readonly ITeamRepository teamRepository;
+    private readonly IAnswerRepository answerRepository;
     private readonly QuizProcessor quizProcessor;
     private readonly ReportManager reportManager;
 
-    public QuestionJob(IStorageClient storageClient, QuizProcessor quizProcessor, ReportManager reportManager)
+    public QuestionJob(
+        ITeamRepository teamRepository,
+        IAnswerRepository answerRepository,
+        QuizProcessor quizProcessor,
+        ReportManager reportManager)
     {
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
+        this.answerRepository = answerRepository ?? throw new ArgumentNullException(nameof(answerRepository));
         this.quizProcessor = quizProcessor ?? throw new ArgumentNullException(nameof(quizProcessor));
         this.reportManager = reportManager ?? throw new ArgumentNullException(nameof(reportManager));
     }
@@ -29,19 +35,19 @@ public class QuestionJob : IJob
 
     private async Task SendAnswersNotificationsAsync()
     {
-        var answers = await storageClient.TryGetAnswersAsync();
+        var answers = await answerRepository.TryGetAnswersAsync();
         if (answers.Any())
             await reportManager.ExecuteAsync();
     }
 
     private async Task RemoveObsoleteAnswersAsync()
     {
-        await storageClient.TryDeleteAnswersAsync();
+        await answerRepository.TryDeleteAnswersAsync();
     }
 
     private async Task GetUpToDateAnswersAsync()
     {
-        var teams = await storageClient.TryGetTeamsAsync();
+        var teams = await teamRepository.TryGetTeamsAsync();
         foreach (var team in teams)
         {
             foreach (var user in team.Users)
@@ -50,7 +56,7 @@ public class QuestionJob : IJob
                 {
                     await quizProcessor.ExecuteAsync(user.Id, string.Empty);
                 }
-            }            
+            }
         }
     }
 }

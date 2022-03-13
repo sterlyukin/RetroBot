@@ -3,11 +3,12 @@ using System.Net.Mail;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using RetroBot.Application.Contracts.Services.Notify;
-using RetroBot.Application.Contracts.Services.Storage;
+using RetroBot.Application.Contracts.Services.DataStorage;
+using RetroBot.Application.Contracts.Services.Notification;
+using RetroBot.Infrastructure.DataStorageClient;
+using RetroBot.Infrastructure.DataStorageClient.Internal;
+using RetroBot.Infrastructure.DataStorageClient.Mappers;
 using RetroBot.Infrastructure.EmailClient;
-using RetroBot.Infrastructure.StorageClient;
-using RetroBot.Infrastructure.StorageClient.Mappers;
 
 namespace RetroBot.Infrastructure;
 
@@ -25,7 +26,10 @@ public static class DependencyRegistration
             .AddSingleton(emailOptions)
             .AddSingleton<IMongoClient>(new MongoClient(databaseOptions.ConnectionString))
             .AddSingleton(MongoFactory(databaseOptions))
-            .AddSingleton<IStorageClient, DatabaseStorageClient>()
+            .AddSingleton<IUserRepository, UserRepository>()
+            .AddSingleton<ITeamRepository, TeamRepository>()
+            .AddSingleton<IQuestionRepository, QuestionRepository>()
+            .AddSingleton<IAnswerRepository, AnswerRepository>()
             .AddSingleton<INotifier, EmailNotifier>();
         
         ConfigureEmailNotifier(services, emailOptions);

@@ -1,4 +1,4 @@
-﻿using RetroBot.Application.Contracts.Services.Storage;
+﻿using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core.Entities;
@@ -8,12 +8,17 @@ namespace RetroBot.Application.CommandHandlers;
 
 internal abstract class CommandHandler
 {
-    private readonly IStorageClient storageClient;
+    private readonly IUserRepository userRepository;
+    private readonly ITeamRepository teamRepository;
     private readonly Messages messages;
 
-    protected CommandHandler(IStorageClient storageClient, Messages messages)
+    protected CommandHandler(
+        IUserRepository userRepository,
+        ITeamRepository teamRepository,
+        Messages messages)
     {
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
@@ -21,14 +26,14 @@ internal abstract class CommandHandler
 
     protected async Task<User> UpdateUserStateAsync(long userId, UserAction action)
     {
-        var user = await storageClient.TryGetByUserIdAsync(userId);
+        var user = await userRepository.TryGetByUserIdAsync(userId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var stateMachine = new StateMachine.StateMachine(user.State);
         user.State = stateMachine.ChangeState(action);
 
-        return await storageClient.TryUpdateUserAsync(user);
+        return await userRepository.TryUpdateUserAsync(user);
     }
 
     protected async Task UpdateTeamIncludeUsersAsync(Team team, User user)
@@ -40,6 +45,6 @@ internal abstract class CommandHandler
                 currentUser.State = updatedUser.State;
         });
         
-        await storageClient.TryUpdateTeamAsync(team);
+        await teamRepository.TryUpdateTeamAsync(team);
     }
 }

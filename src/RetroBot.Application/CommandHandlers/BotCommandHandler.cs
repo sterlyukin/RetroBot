@@ -1,4 +1,4 @@
-﻿using RetroBot.Application.Contracts.Services.Storage;
+﻿using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Core;
 using Telegram.Bot;
@@ -10,16 +10,22 @@ namespace RetroBot.Application.CommandHandlers;
 internal sealed class BotCommandHandler
 {
     private readonly ITelegramBotClient bot;
-    private readonly IStorageClient storageClient;
+    private readonly IUserRepository userRepository;
+    private readonly ITeamRepository teamRepository;
     private readonly Messages messages;
 
     private IDictionary<string, CommandHandler?> menuCommandHandlers;
     private IDictionary<UserState, CommandHandler?> processCommandHandlers;
 
-    public BotCommandHandler(ITelegramBotClient bot, IStorageClient storageClient, Messages messages)
+    public BotCommandHandler(
+        ITelegramBotClient bot,
+        IUserRepository userRepository,
+        ITeamRepository teamRepository,
+        Messages messages)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
-        this.storageClient = storageClient ?? throw new ArgumentNullException(nameof(storageClient));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
         
         InitializeCommandHandlers();
@@ -31,15 +37,15 @@ internal sealed class BotCommandHandler
         {
             {
                 messages.StartMenuCommand,
-                new StartCommandHandler(storageClient, messages)
+                new StartCommandHandler(userRepository, teamRepository, messages)
             },
             {
                 messages.JoinTeamMenuCommand,
-                new JoinTeamCommandHandler(storageClient, messages)
+                new JoinTeamCommandHandler(userRepository, teamRepository, messages)
             },
             {
                 messages.CreateTeamMenuCommand,
-                new CreateTeamCommandHandler(storageClient, messages)
+                new CreateTeamCommandHandler(userRepository, teamRepository, messages)
             }
         };
         
@@ -47,19 +53,19 @@ internal sealed class BotCommandHandler
         {
             {
                 UserState.OnInputTeamId,
-                new InputTeamIdCommandHandler(storageClient, messages)
+                new InputTeamIdCommandHandler(userRepository, teamRepository, messages)
             },
             {
                 UserState.OnInputTeamName,
-                new InputTeamNameCommandHandler(storageClient, messages)
+                new InputTeamNameCommandHandler(userRepository, teamRepository, messages)
             },
             {
                 UserState.OnInputTeamleadEmail,
-                new InputTeamleadEmailCommandHandler(storageClient, messages)
+                new InputTeamleadEmailCommandHandler(userRepository, teamRepository, messages)
             },
         };
     }
-    
+
     public async void OnReceiveMessage(object? sender, MessageEventArgs e)
     {
         try
@@ -67,7 +73,7 @@ internal sealed class BotCommandHandler
             var containsHandler = menuCommandHandlers.TryGetValue(e.Message.Text, out var commandHandler);
             if (!containsHandler || commandHandler is null)
             {
-                var user = await storageClient.TryGetByUserIdAsync(e.Message.From.Id);
+                var user = await userRepository.TryGetByUserIdAsync(e.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 

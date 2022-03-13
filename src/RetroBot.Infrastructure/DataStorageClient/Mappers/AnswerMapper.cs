@@ -1,14 +1,13 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using RetroBot.Core;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Infrastructure.StorageClient.Mappers;
+namespace RetroBot.Infrastructure.DataStorageClient.Mappers;
 
-internal class QuestionMapper : BsonClassMap<Question>
+internal class AnswerMapper : BsonClassMap<Answer>
 {
-    public QuestionMapper()
+    public AnswerMapper()
     {
         AutoMap();
         MapIdMember(e => e.Id)

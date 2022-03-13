@@ -1,4 +1,4 @@
-﻿namespace RetroBot.Infrastructure.StorageClient;
+﻿namespace RetroBot.Infrastructure.DataStorageClient;
 
 public sealed class DatabaseOptions
 {
