@@ -1,9 +1,10 @@
-﻿using RetroBot.Application.Contracts.Services.DataStorage;
-using Telegram.Bot.Args;
+﻿using MediatR;
+using RetroBot.Application.CommandHandlers.Commands;
+using RetroBot.Application.Contracts.Services.DataStorage;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class JoinTeamCommandHandler : CommandHandler
+internal sealed class JoinTeamCommandHandler : CommandHandler, IRequestHandler<JoinTeamCommand, string>
 {
     private readonly Messages messages;
     
@@ -15,7 +16,7 @@ internal sealed class JoinTeamCommandHandler : CommandHandler
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
-    public override Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
+    public Task<string> Handle(JoinTeamCommand request, CancellationToken cancellationToken)
     {
         return Task.FromResult(messages.SuggestionToEnterTeamId);
     }

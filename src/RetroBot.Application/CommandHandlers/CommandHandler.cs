@@ -2,7 +2,6 @@
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core.Entities;
-using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
@@ -22,8 +21,6 @@ internal abstract class CommandHandler
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
-    public abstract Task<string> ExecuteAsync(object? sender, MessageEventArgs info);
-
     protected async Task<User> UpdateUserStateAsync(long userId, UserAction action)
     {
         var user = await userRepository.TryGetByUserIdAsync(userId);

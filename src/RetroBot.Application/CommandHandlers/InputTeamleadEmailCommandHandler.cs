@@ -1,10 +1,11 @@
-﻿using RetroBot.Application.Contracts.Services.DataStorage;
+﻿using MediatR;
+using RetroBot.Application.CommandHandlers.Commands;
+using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
-using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class InputTeamleadEmailCommandHandler : CommandHandler
+internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IRequestHandler<InputTeamleadEmailCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -20,9 +21,9 @@ internal sealed class InputTeamleadEmailCommandHandler : CommandHandler
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
+    public async Task<string> Handle(InputTeamleadEmailCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
@@ -30,7 +31,7 @@ internal sealed class InputTeamleadEmailCommandHandler : CommandHandler
         if (team is null)
             throw new BusinessException(messages.NonexistentTeamId);
         
-        team.TeamLeadEmail = info.Message.Text;
+        team.TeamLeadEmail = request.Text;
         await UpdateTeamIncludeUsersAsync(team, user);
 
         return string.Format(messages.SuccessfullyCreateTeam, team.Id);

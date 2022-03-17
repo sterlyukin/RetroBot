@@ -1,11 +1,12 @@
-﻿using RetroBot.Application.Contracts.Services.DataStorage;
+﻿using MediatR;
+using RetroBot.Application.CommandHandlers.Commands;
+using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
-using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class InputTeamIdCommandHandler : CommandHandler
+internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandler<InputTeamIdCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -20,17 +21,17 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
-    
-    public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
+
+    public async Task<string> Handle(InputTeamIdCommand request, CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(info.Message.Text, out var teamId))
+        if (!Guid.TryParse(request.Text, out var teamId))
             throw new BusinessException(messages.InvalidTeamId);
 
         var team = await teamRepository.TryGetByTeamIdAsync(teamId);
         if (team is null)
             throw new BusinessException( messages.NonexistentTeamId);
 
-        var user = await userRepository.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 

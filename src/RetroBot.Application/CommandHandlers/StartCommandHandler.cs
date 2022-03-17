@@ -1,12 +1,13 @@
-﻿using RetroBot.Application.Contracts.Services.DataStorage;
+﻿using MediatR;
+using RetroBot.Application.CommandHandlers.Commands;
+using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.StateMachine;
 using RetroBot.Core;
 using RetroBot.Core.Entities;
-using Telegram.Bot.Args;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class StartCommandHandler : CommandHandler
+internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly Messages messages;
@@ -19,13 +20,13 @@ internal sealed class StartCommandHandler : CommandHandler
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
-    
-    public override async Task<string> ExecuteAsync(object? sender, MessageEventArgs info)
+
+    public async Task<string> Handle(StartCommand request, CancellationToken cancellationToken)
     {
-        var contactName = GetContactName(info);
+        var contactName = GetContactName(request);
         var greetingMessage = string.Format(messages.Greeting, contactName);
 
-        var user = await userRepository.TryGetByUserIdAsync(info.Message.From.Id);
+        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
         if (user is not null)
         {
             user.State = UserState.OnStartMessage;
@@ -35,20 +36,20 @@ internal sealed class StartCommandHandler : CommandHandler
         {
             await userRepository.TryAddUserAsync(new User
             {
-                Id = info.Message.From.Id,
+                Id = request.UserId,
                 State = UserState.OnStartMessage,
             });
-            await UpdateUserStateAsync(info.Message.From.Id, UserAction.PressedStart);
+            await UpdateUserStateAsync(request.UserId, UserAction.PressedStart);
         }
 
         return greetingMessage;
     }
     
-    private string GetContactName(MessageEventArgs info)
+    private string GetContactName(StartCommand request)
     {
-        if (!string.IsNullOrEmpty(info.Message.From.Username))
-            return info.Message.From.Username;
+        if (!string.IsNullOrEmpty(request.Username))
+            return request.Username;
 
-        return info.Message.From.FirstName;
+        return request.FirstName;
     }
 }

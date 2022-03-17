@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using RetroBot.Application.CommandHandlers;
+using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Jobs;
 using RetroBot.Application.Quiz;
 using RetroBot.Application.Report;
@@ -19,6 +23,7 @@ public static class DependencyRegistration
 
         var bot = new TelegramBotClient(telegramClientOptions.ApiKey);
         
+        
         services
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
@@ -26,9 +31,27 @@ public static class DependencyRegistration
             .AddSingleton<ReportBuilder>()
             .AddSingleton<ReportManager>()
             .AddSingleton<QuizProcessor>()
+            .AddMediatR(Assembly.GetExecutingAssembly())
+            .ConfigureHandlers()
             .ConfigureJobs();
 
         return services;
+    }
+    
+    private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IRequestHandler<CreateTeamCommand, string>, CreateTeamCommandHandler>()
+
+            .AddScoped<IRequestHandler<InputTeamIdCommand, string>, InputTeamIdCommandHandler>()
+
+            .AddScoped<IRequestHandler<InputTeamleadEmailCommand, string>, InputTeamleadEmailCommandHandler>()
+
+            .AddScoped<IRequestHandler<InputTeamNameCommand, string>, InputTeamNameCommandHandler>()
+
+            .AddScoped<IRequestHandler<JoinTeamCommand, string>, JoinTeamCommandHandler>()
+
+            .AddScoped<IRequestHandler<StartCommand, string>, StartCommandHandler>();
     }
 
     private static IServiceCollection ConfigureJobs(this IServiceCollection services)

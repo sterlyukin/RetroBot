@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using MediatR;
+using Microsoft.Extensions.Hosting;
 using RetroBot.Application.CommandHandlers;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using Telegram.Bot;
@@ -8,26 +9,27 @@ namespace RetroBot.Application;
 
 public class BotClient : IHostedService
 {
-    private readonly IUserRepository userRepository;
-    private readonly ITeamRepository teamRepository;
     private readonly ITelegramBotClient bot;
+
+    private readonly IMediator mediator;
+    private readonly IUserRepository userRepository;
     private readonly Messages messages;
 
     public BotClient(
-        IUserRepository userRepository,
-        ITeamRepository teamRepository,
         ITelegramBotClient bot,
+        IMediator mediator,
+        IUserRepository userRepository,
         Messages messages)
     {
-        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
+        this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var botCommandHandler = new BotCommandHandler(bot, userRepository, teamRepository, messages);
+        var botCommandHandler = new BotCommandHandler(bot, mediator, userRepository, messages);
         bot.OnMessage += botCommandHandler.OnReceiveMessage;
         await InitializeBotCommandsAsync(bot);
         
