@@ -5,7 +5,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Mappers;
 
-internal class TeamMapper : BsonClassMap<Team>
+internal sealed class TeamMapper : BsonClassMap<Team>
 {
     public TeamMapper()
     {

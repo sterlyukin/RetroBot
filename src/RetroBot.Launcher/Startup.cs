@@ -8,7 +8,7 @@ using RetroBot.Launcher.Infrastructure;
 
 namespace RetroBot.Launcher;
 
-public class Startup
+public sealed class Startup
 {
     private readonly IConfiguration configuration = ConfigBuilder.Build();
 

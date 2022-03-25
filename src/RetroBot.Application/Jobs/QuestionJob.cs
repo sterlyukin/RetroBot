@@ -7,7 +7,7 @@ using RetroBot.Core;
 namespace RetroBot.Application.Jobs;
 
 [DisallowConcurrentExecution]
-public class QuestionJob : IJob
+public sealed class QuestionJob : IJob
 {
     private readonly ITeamRepository teamRepository;
     private readonly IAnswerRepository answerRepository;

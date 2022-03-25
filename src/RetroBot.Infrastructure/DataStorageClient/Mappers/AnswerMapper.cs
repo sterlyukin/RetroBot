@@ -5,7 +5,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Mappers;
 
-internal class AnswerMapper : BsonClassMap<Answer>
+internal sealed class AnswerMapper : BsonClassMap<Answer>
 {
     public AnswerMapper()
     {

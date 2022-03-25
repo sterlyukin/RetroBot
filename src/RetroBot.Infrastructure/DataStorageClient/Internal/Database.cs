@@ -3,7 +3,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Internal;
 
-internal class Database
+internal sealed class Database
 {
     private readonly IMongoClient client;
     private readonly DatabaseOptions options;

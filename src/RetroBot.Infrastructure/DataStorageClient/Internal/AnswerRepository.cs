@@ -4,7 +4,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Internal;
 
-internal class AnswerRepository : IAnswerRepository
+internal sealed class AnswerRepository : IAnswerRepository
 {
     private readonly Database database;
 

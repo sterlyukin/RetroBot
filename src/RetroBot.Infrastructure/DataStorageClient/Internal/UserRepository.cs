@@ -3,7 +3,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Internal;
 
-internal class UserRepository : IUserRepository
+internal sealed class UserRepository : IUserRepository
 {
     private readonly Database database;
 

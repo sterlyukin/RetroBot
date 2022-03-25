@@ -4,7 +4,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Report;
 
-public class ReportManager
+public sealed class ReportManager
 {
     private readonly ITeamRepository teamRepository;
     private readonly IQuestionRepository questionRepository;

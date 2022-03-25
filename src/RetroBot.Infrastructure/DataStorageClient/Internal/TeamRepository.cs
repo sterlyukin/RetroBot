@@ -4,7 +4,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Infrastructure.DataStorageClient.Internal;
 
-internal class TeamRepository : ITeamRepository
+internal sealed class TeamRepository : ITeamRepository
 {
     private readonly Database database;
 

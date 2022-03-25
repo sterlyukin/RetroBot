@@ -3,7 +3,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.Report;
 
-public class ReportBuilder
+public sealed class ReportBuilder
 {
     public string Execute(Team team, IList<Question> questions, IList<Answer> teamAnswers)
     {

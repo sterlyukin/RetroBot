@@ -7,7 +7,7 @@ using Telegram.Bot.Types;
 
 namespace RetroBot.Application;
 
-public class BotClient : IHostedService
+public sealed class BotClient : IHostedService
 {
     private readonly ITelegramBotClient bot;
 
