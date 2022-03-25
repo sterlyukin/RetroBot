@@ -102,7 +102,6 @@ internal sealed class BotCommandHandler
 
     private void InitializeCommand(Command command, MessageEventArgs e)
     {
-        
         command.UserId = e.Message.From.Id;
         command.Text = e.Message.Text;
         command.Username = e.Message.From.Username;
