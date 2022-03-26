@@ -7,6 +7,7 @@ using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Jobs;
 using RetroBot.Application.Quiz;
 using RetroBot.Application.Report;
+using RetroBot.Application.Validators;
 using Telegram.Bot;
 
 namespace RetroBot.Application;
@@ -45,6 +46,7 @@ public static class DependencyRegistration
 
             .AddScoped<IRequestHandler<InputTeamIdCommand, string>, InputTeamIdCommandHandler>()
 
+            .AddSingleton<InputTeamleadEmailCommandValidator>()
             .AddScoped<IRequestHandler<InputTeamleadEmailCommand, string>, InputTeamleadEmailCommandHandler>()
 
             .AddScoped<IRequestHandler<InputTeamNameCommand, string>, InputTeamNameCommandHandler>()
