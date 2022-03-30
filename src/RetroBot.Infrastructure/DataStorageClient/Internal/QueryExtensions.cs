@@ -15,6 +15,18 @@ internal static class QueryExtensions
         await collection.DeleteManyAsync(_ => true);
     }
 
+    public static async Task DeleteById<TType>(this IMongoCollection<TType> collection, long id)
+        where TType : IWithIssuedId
+    {
+        await collection.DeleteOneAsync(entity => entity.Id == id);
+    }
+    
+    public static async Task DeleteById<TType>(this IMongoCollection<TType> collection, Guid id)
+        where TType : IWithGeneratedId
+    {
+        await collection.DeleteOneAsync(entity => entity.Id == id);
+    }
+
     public static async Task<TType> GetByIdAsync<TType>(this IMongoCollection<TType> collection, Guid id)
         where TType : IWithGeneratedId
     {

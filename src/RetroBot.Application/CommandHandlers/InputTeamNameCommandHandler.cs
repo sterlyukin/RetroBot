@@ -7,7 +7,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class InputTeamNameCommandHandler : CommandHandler, IRequestHandler<InputTeamNameCommand, string>
+internal sealed class InputTeamNameCommandHandler : CommandHandler, IRequestHandler<InputTeamNameCommand, CommandExecutionResult>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -23,9 +23,9 @@ internal sealed class InputTeamNameCommandHandler : CommandHandler, IRequestHand
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<string> Handle(InputTeamNameCommand request, CancellationToken cancellationToken)
+    public async Task<CommandExecutionResult> Handle(InputTeamNameCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
+        var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
         
@@ -40,8 +40,8 @@ internal sealed class InputTeamNameCommandHandler : CommandHandler, IRequestHand
                 updatedUser
             }
         };
-        await teamRepository.TryAddTeamAsync(newTeam);
+        await teamRepository.TryAddAsync(newTeam);
 
-        return string.Format(messages.SuggestionToEnterTeamleadEmail, newTeam.Id);
+        return CommandExecutionResult.Valid(string.Format(messages.SuggestionToEnterTeamleadEmail, newTeam.Id));
     }
 }

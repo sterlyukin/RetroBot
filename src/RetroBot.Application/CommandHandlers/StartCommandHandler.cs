@@ -7,7 +7,7 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, string>
+internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, CommandExecutionResult>
 {
     private readonly IUserRepository userRepository;
     private readonly Messages messages;
@@ -21,20 +21,20 @@ internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<Star
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<string> Handle(StartCommand request, CancellationToken cancellationToken)
+    public async Task<CommandExecutionResult> Handle(StartCommand request, CancellationToken cancellationToken)
     {
         var contactName = GetContactName(request);
         var greetingMessage = string.Format(messages.Greeting, contactName);
 
-        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
+        var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is not null)
         {
             user.State = UserState.OnStartMessage;
-            await userRepository.TryUpdateUserAsync(user);
+            await userRepository.TryUpdateAsync(user);
         }
         else
         {
-            await userRepository.TryAddUserAsync(new User
+            await userRepository.TryAddAsync(new User
             {
                 Id = request.UserId,
                 State = UserState.OnStartMessage,
@@ -42,7 +42,7 @@ internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<Star
             await UpdateUserStateAsync(request.UserId, UserAction.PressedStart);
         }
 
-        return greetingMessage;
+        return CommandExecutionResult.Valid(greetingMessage);
     }
     
     private string GetContactName(StartCommand request)

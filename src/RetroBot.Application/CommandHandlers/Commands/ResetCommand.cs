@@ -2,6 +2,6 @@
 
 namespace RetroBot.Application.CommandHandlers.Commands;
 
-public sealed class StartCommand : Command, IRequest<CommandExecutionResult>
+public class ResetCommand : Command, IRequest<CommandExecutionResult>
 {
 }

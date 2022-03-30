@@ -5,7 +5,7 @@ using RetroBot.Application.StateMachine;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class CreateTeamCommandHandler : CommandHandler, IRequestHandler<CreateTeamCommand, string>
+internal sealed class CreateTeamCommandHandler : CommandHandler, IRequestHandler<CreateTeamCommand, CommandExecutionResult>
 {
     private readonly Messages messages;
     
@@ -17,10 +17,10 @@ internal sealed class CreateTeamCommandHandler : CommandHandler, IRequestHandler
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<string> Handle(CreateTeamCommand request, CancellationToken cancellationToken)
+    public async Task<CommandExecutionResult> Handle(CreateTeamCommand request, CancellationToken cancellationToken)
     {
         await UpdateUserStateAsync(request.UserId, UserAction.PressedCreateTeam);
 
-        return messages.SuggestionToEnterTeamName;
+        return CommandExecutionResult.Valid(messages.SuggestionToEnterTeamName);
     }
 }

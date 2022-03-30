@@ -4,7 +4,7 @@ using RetroBot.Application.Contracts.Services.DataStorage;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class JoinTeamCommandHandler : CommandHandler, IRequestHandler<JoinTeamCommand, string>
+internal sealed class JoinTeamCommandHandler : CommandHandler, IRequestHandler<JoinTeamCommand, CommandExecutionResult>
 {
     private readonly Messages messages;
     
@@ -16,8 +16,8 @@ internal sealed class JoinTeamCommandHandler : CommandHandler, IRequestHandler<J
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
-    public Task<string> Handle(JoinTeamCommand request, CancellationToken cancellationToken)
+    public async Task<CommandExecutionResult> Handle(JoinTeamCommand request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(messages.SuggestionToEnterTeamId);
+        return CommandExecutionResult.Valid(messages.SuggestionToEnterTeamId);
     }
 }

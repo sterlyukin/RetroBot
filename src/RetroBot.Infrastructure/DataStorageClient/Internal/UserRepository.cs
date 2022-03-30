@@ -12,19 +12,24 @@ internal sealed class UserRepository : IUserRepository
         this.database = database ?? throw new ArgumentNullException(nameof(database));
     }
     
-    public async Task<User?> TryGetByUserIdAsync(long userId)
+    public async Task<User?> TryGetByIdAsync(long userId)
     {
         return await database.Users.GetByIdAsync(userId);
     }
 
-    public async Task TryAddUserAsync(User user)
+    public async Task TryAddAsync(User user)
     {
         await database.Users.InsertOneAsync(user);
     }
 
-    public async Task<User> TryUpdateUserAsync(User user)
+    public async Task<User> TryUpdateAsync(User user)
     {
         await database.Users.UpdateByIssuedIdAsync(user);
         return await database.Users.GetByIdAsync(user.Id);
+    }
+
+    public async Task TryDeleteAsync(User user)
+    {
+        await database.Users.DeleteById(user.Id);
     }
 }

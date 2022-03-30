@@ -47,7 +47,7 @@ public sealed class QuestionJob : IJob
 
     private async Task GetUpToDateAnswersAsync()
     {
-        var teams = await teamRepository.TryGetTeamsAsync();
+        var teams = await teamRepository.TryGetAsync();
         foreach (var team in teams)
         {
             foreach (var user in team.Users)

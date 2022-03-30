@@ -2,6 +2,6 @@
 
 namespace RetroBot.Application.CommandHandlers.Commands;
 
-public sealed class InputTeamNameCommand : Command, IRequest<string>
+public sealed class InputTeamNameCommand : Command, IRequest<CommandExecutionResult>
 {
 }

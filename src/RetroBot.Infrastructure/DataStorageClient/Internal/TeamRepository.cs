@@ -13,27 +13,27 @@ internal sealed class TeamRepository : ITeamRepository
         this.database = database ?? throw new ArgumentNullException(nameof(database));
     }
 
-    public async Task<IList<Team>> TryGetTeamsAsync()
+    public async Task<IList<Team>> TryGetAsync()
     {
         return await database.Teams.GetAllAsync();
     }
 
-    public async Task<Team?> TryGetByTeamIdAsync(Guid teamId)
+    public async Task<Team?> TryGetByIdAsync(Guid teamId)
     {
         return await database.Teams.GetByIdAsync(teamId);
     }
 
-    public async Task<Team?> TryGetTeamByUserIdAsync(long userId)
+    public async Task<Team?> TryGetByUserIdAsync(long userId)
     {
         return await database.Teams.Find(team => team.Users.Any(user => user.Id == userId)).FirstOrDefaultAsync();
     }
 
-    public async Task TryAddTeamAsync(Team team)
+    public async Task TryAddAsync(Team team)
     {
         await database.Teams.InsertOneAsync(team);
     }
 
-    public async Task TryUpdateTeamAsync(Team team)
+    public async Task TryUpdateAsync(Team team)
     {
         await database.Teams.UpdateByGeneratedIdAsync(team);
     }
@@ -42,5 +42,10 @@ internal sealed class TeamRepository : ITeamRepository
     {
         team.Users.Add(user);
         await database.Teams.UpdateByGeneratedIdAsync(team);
+    }
+
+    public async Task TryDeleteAsync(Team team)
+    {
+        await database.Teams.DeleteById(team.Id);
     }
 }

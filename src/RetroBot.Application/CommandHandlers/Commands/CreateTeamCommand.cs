@@ -2,6 +2,6 @@
 
 namespace RetroBot.Application.CommandHandlers.Commands;
 
-public sealed class CreateTeamCommand : Command, IRequest<string>
+public sealed class CreateTeamCommand : Command, IRequest<CommandExecutionResult>
 {
 }

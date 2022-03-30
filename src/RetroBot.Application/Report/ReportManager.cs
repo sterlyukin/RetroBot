@@ -39,7 +39,7 @@ public sealed class ReportManager
     {
         var teamReports = new Dictionary<Team, string>();
 
-        var teams = await teamRepository.TryGetTeamsAsync();
+        var teams = await teamRepository.TryGetAsync();
         var questions = await questionRepository.TryGetQuestionsAsync();
 
         foreach (var team in teams)

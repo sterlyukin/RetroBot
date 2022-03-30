@@ -23,14 +23,14 @@ internal abstract class CommandHandler
     
     protected async Task<User> UpdateUserStateAsync(long userId, UserAction action)
     {
-        var user = await userRepository.TryGetByUserIdAsync(userId);
+        var user = await userRepository.TryGetByIdAsync(userId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var stateMachine = new StateMachine.StateMachine(user.State);
         user.State = stateMachine.ChangeState(action);
 
-        return await userRepository.TryUpdateUserAsync(user);
+        return await userRepository.TryUpdateAsync(user);
     }
 
     protected async Task UpdateTeamIncludeUsersAsync(Team team, User user)
@@ -42,6 +42,6 @@ internal abstract class CommandHandler
                 currentUser.State = updatedUser.State;
         });
         
-        await teamRepository.TryUpdateTeamAsync(team);
+        await teamRepository.TryUpdateAsync(team);
     }
 }

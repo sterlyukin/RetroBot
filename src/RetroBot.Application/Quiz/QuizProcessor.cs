@@ -35,7 +35,7 @@ public sealed class QuizProcessor
     {
         var semaphoreObject = new Semaphore(1, 1, name: "Question job");
         semaphoreObject.WaitOne();
-        var user = await userRepository.TryGetByUserIdAsync(userId);
+        var user = await userRepository.TryGetByIdAsync(userId);
         if (user is null || user.State is not UserState.Completed)
         {
             semaphoreObject.Release();

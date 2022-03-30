@@ -6,7 +6,7 @@ using RetroBot.Application.Validators;
 
 namespace RetroBot.Application.CommandHandlers;
 
-internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IRequestHandler<InputTeamleadEmailCommand, string>
+internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IRequestHandler<InputTeamleadEmailCommand, CommandExecutionResult>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -25,23 +25,23 @@ internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IReques
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<string> Handle(InputTeamleadEmailCommand request, CancellationToken cancellationToken)
+    public async Task<CommandExecutionResult> Handle(InputTeamleadEmailCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.TryGetByUserIdAsync(request.UserId);
+        var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
-        var team = await teamRepository.TryGetTeamByUserIdAsync(user.Id);
+        var team = await teamRepository.TryGetByUserIdAsync(user.Id);
         if (team is null)
             throw new BusinessException(messages.NonexistentTeamId);
 
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
-            return validationResult.Errors[0].ErrorMessage;
+            return CommandExecutionResult.Invalid(validationResult.Errors[0].ErrorMessage);
 
         team.TeamLeadEmail = request.Text;
         await UpdateTeamIncludeUsersAsync(team, user);
 
-        return string.Format(messages.SuccessfullyCreateTeam, team.Id);
+        return CommandExecutionResult.Valid(string.Format(messages.SuccessfullyCreateTeam, team.Id));
     }
 }

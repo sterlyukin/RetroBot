@@ -42,18 +42,18 @@ public static class DependencyRegistration
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRequestHandler<CreateTeamCommand, string>, CreateTeamCommandHandler>()
+            .AddScoped<IRequestHandler<CreateTeamCommand, CommandExecutionResult>, CreateTeamCommandHandler>()
 
-            .AddScoped<IRequestHandler<InputTeamIdCommand, string>, InputTeamIdCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamIdCommand, CommandExecutionResult>, InputTeamIdCommandHandler>()
 
             .AddSingleton<InputTeamleadEmailCommandValidator>()
-            .AddScoped<IRequestHandler<InputTeamleadEmailCommand, string>, InputTeamleadEmailCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamleadEmailCommand, CommandExecutionResult>, InputTeamleadEmailCommandHandler>()
 
-            .AddScoped<IRequestHandler<InputTeamNameCommand, string>, InputTeamNameCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamNameCommand, CommandExecutionResult>, InputTeamNameCommandHandler>()
 
-            .AddScoped<IRequestHandler<JoinTeamCommand, string>, JoinTeamCommandHandler>()
+            .AddScoped<IRequestHandler<JoinTeamCommand, CommandExecutionResult>, JoinTeamCommandHandler>()
 
-            .AddScoped<IRequestHandler<StartCommand, string>, StartCommandHandler>();
+            .AddScoped<IRequestHandler<StartCommand, CommandExecutionResult>, StartCommandHandler>();
     }
 
     private static IServiceCollection ConfigureJobs(this IServiceCollection services)

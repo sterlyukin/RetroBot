@@ -76,7 +76,7 @@ internal sealed class BotCommandHandler
             var containsHandler = menuCommands.TryGetValue(e.Message.Text, out var command);
             if (!containsHandler || command is null)
             {
-                var user = await userRepository.TryGetByUserIdAsync(e.Message.From.Id);
+                var user = await userRepository.TryGetByIdAsync(e.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 
@@ -90,13 +90,15 @@ internal sealed class BotCommandHandler
             }
 
             InitializeCommand(command, e);
-            var result = await mediator.Send(command);
-            await SendMessageAsync(e.Message.From.Id, result?.ToString());
+            var commandExecutionResult = await mediator.Send(command) as CommandExecutionResult;
+            if (commandExecutionResult is not null && !commandExecutionResult.IsValid)
+                throw new BusinessException(commandExecutionResult.Message);
+            
+            await SendMessageAsync(e.Message.From.Id, commandExecutionResult?.Message);
         }
         catch (Exception ex)
         {
-            await SendMessageAsync(e.Message.From.Id,
-                $"{ex.Message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
+            await SendResetCommandAsync(e, ex.Message);
         }
     }
 
@@ -106,6 +108,21 @@ internal sealed class BotCommandHandler
         command.Text = e.Message.Text;
         command.Username = e.Message.From.Username;
         command.FirstName = e.Message.From.FirstName;
+    }
+
+    private async Task SendResetCommandAsync(MessageEventArgs e, string message)
+    {
+        await SendErrorMessageAsync(e.Message.From.Id, message);
+
+        var resetCommand = new ResetCommand();
+        InitializeCommand(resetCommand, e);
+        await mediator.Send(resetCommand);
+    }
+    
+    private async Task SendErrorMessageAsync(ChatId chat, string? message)
+    {
+        await SendMessageAsync(chat,
+            $"{message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
     }
 
     private async Task SendMessageAsync(ChatId chat, string? message)
