@@ -7,7 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 
-namespace RetroBot.Application.CommandHandlers;
+namespace RetroBot.Application.CommandHandlers.Handlers;
 
 internal sealed class BotCommandHandler
 {
@@ -90,11 +90,8 @@ internal sealed class BotCommandHandler
             }
 
             InitializeCommand(command, e);
-            var commandExecutionResult = await mediator.Send(command) as CommandExecutionResult;
-            if (commandExecutionResult is not null && !commandExecutionResult.IsValid)
-                throw new BusinessException(commandExecutionResult.Message);
-            
-            await SendMessageAsync(e.Message.From.Id, commandExecutionResult?.Message);
+            var commandExecutionResult = await mediator.Send(command);
+            await SendMessageAsync(e.Message.From.Id, commandExecutionResult?.ToString());
         }
         catch (Exception ex)
         {

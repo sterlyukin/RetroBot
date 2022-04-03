@@ -1,4 +1,6 @@
-﻿namespace RetroBot.Core.Entities;
+﻿using RetroBot.Core.Interfaces;
+
+namespace RetroBot.Core.Entities;
 
 public sealed class Team : IWithGeneratedId
 {

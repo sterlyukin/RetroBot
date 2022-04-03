@@ -2,12 +2,13 @@
 using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.StateMachine;
+using RetroBot.Application.Validators;
 using RetroBot.Core;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Application.CommandHandlers;
+namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, CommandExecutionResult>
+internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly Messages messages;
@@ -15,16 +16,16 @@ internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<Star
     public StartCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
-        Messages messages) : base(userRepository, teamRepository, messages)
+        StandardCommandValidator validator,
+        Messages messages) : base(userRepository, teamRepository, validator, messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<CommandExecutionResult> Handle(StartCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(StartCommand request, CancellationToken cancellationToken)
     {
-        var contactName = GetContactName(request);
-        var greetingMessage = string.Format(messages.Greeting, contactName);
+        await ValidateAsync(request);
 
         var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is not null)
@@ -41,8 +42,9 @@ internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<Star
             });
             await UpdateUserStateAsync(request.UserId, UserAction.PressedStart);
         }
-
-        return CommandExecutionResult.Valid(greetingMessage);
+        
+        var contactName = GetContactName(request);
+        return string.Format(messages.Greeting, contactName);
     }
     
     private string GetContactName(StartCommand request)

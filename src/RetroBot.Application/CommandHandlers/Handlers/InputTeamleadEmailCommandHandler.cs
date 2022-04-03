@@ -4,29 +4,29 @@ using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.Validators;
 
-namespace RetroBot.Application.CommandHandlers;
+namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IRequestHandler<InputTeamleadEmailCommand, CommandExecutionResult>
+internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IRequestHandler<InputTeamleadEmailCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
-    private readonly InputTeamleadEmailCommandValidator validator;
     private readonly Messages messages;
 
     public InputTeamleadEmailCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
         InputTeamleadEmailCommandValidator validator,
-        Messages messages) : base(userRepository, teamRepository, messages)
+        Messages messages) : base(userRepository, teamRepository, validator, messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
-        this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<CommandExecutionResult> Handle(InputTeamleadEmailCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(InputTeamleadEmailCommand request, CancellationToken cancellationToken)
     {
+        await ValidateAsync(request);
+        
         var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
@@ -35,13 +35,9 @@ internal sealed class InputTeamleadEmailCommandHandler : CommandHandler, IReques
         if (team is null)
             throw new BusinessException(messages.NonexistentTeamId);
 
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-            return CommandExecutionResult.Invalid(validationResult.Errors[0].ErrorMessage);
-
         team.TeamLeadEmail = request.Text;
         await UpdateTeamIncludeUsersAsync(team, user);
 
-        return CommandExecutionResult.Valid(string.Format(messages.SuccessfullyCreateTeam, team.Id));
+        return string.Format(messages.SuccessfullyCreateTeam, team.Name, team.Id);
     }
 }

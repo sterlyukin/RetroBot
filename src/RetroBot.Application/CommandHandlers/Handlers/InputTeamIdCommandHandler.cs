@@ -3,10 +3,11 @@ using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
+using RetroBot.Application.Validators;
 
-namespace RetroBot.Application.CommandHandlers;
+namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandler<InputTeamIdCommand, CommandExecutionResult>
+internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandler<InputTeamIdCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -15,15 +16,18 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandle
     public InputTeamIdCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
-        Messages messages) : base(userRepository, teamRepository, messages)
+        StandardCommandValidator validator,
+        Messages messages) : base(userRepository, teamRepository, validator, messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<CommandExecutionResult> Handle(InputTeamIdCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(InputTeamIdCommand request, CancellationToken cancellationToken)
     {
+        await ValidateAsync(request);
+        
         if (!Guid.TryParse(request.Text, out var teamId))
             throw new BusinessException(messages.InvalidTeamId);
 
@@ -38,6 +42,6 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandle
         var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
         await teamRepository.TryAddUserToTeamAsync(team, updatedUser);
 
-        return CommandExecutionResult.Valid(messages.SuccessfullyJoinTeam);
+        return messages.SuccessfullyJoinTeam;
     }
 }

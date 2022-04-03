@@ -1,4 +1,4 @@
-﻿namespace RetroBot.Core;
+﻿namespace RetroBot.Core.Interfaces;
 
 public interface IWithGeneratedId
 {

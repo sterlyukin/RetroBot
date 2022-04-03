@@ -2,8 +2,8 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
-using RetroBot.Application.CommandHandlers;
 using RetroBot.Application.CommandHandlers.Commands;
+using RetroBot.Application.CommandHandlers.Handlers;
 using RetroBot.Application.Jobs;
 using RetroBot.Application.Quiz;
 using RetroBot.Application.Report;
@@ -42,18 +42,20 @@ public static class DependencyRegistration
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRequestHandler<CreateTeamCommand, CommandExecutionResult>, CreateTeamCommandHandler>()
+            .AddSingleton<StandardCommandValidator>()
+                
+            .AddScoped<IRequestHandler<CreateTeamCommand, string>, CreateTeamCommandHandler>()
 
-            .AddScoped<IRequestHandler<InputTeamIdCommand, CommandExecutionResult>, InputTeamIdCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamIdCommand, string>, InputTeamIdCommandHandler>()
 
             .AddSingleton<InputTeamleadEmailCommandValidator>()
-            .AddScoped<IRequestHandler<InputTeamleadEmailCommand, CommandExecutionResult>, InputTeamleadEmailCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamleadEmailCommand, string>, InputTeamleadEmailCommandHandler>()
 
-            .AddScoped<IRequestHandler<InputTeamNameCommand, CommandExecutionResult>, InputTeamNameCommandHandler>()
+            .AddScoped<IRequestHandler<InputTeamNameCommand, string>, InputTeamNameCommandHandler>()
 
-            .AddScoped<IRequestHandler<JoinTeamCommand, CommandExecutionResult>, JoinTeamCommandHandler>()
+            .AddScoped<IRequestHandler<JoinTeamCommand, string>, JoinTeamCommandHandler>()
 
-            .AddScoped<IRequestHandler<StartCommand, CommandExecutionResult>, StartCommandHandler>();
+            .AddScoped<IRequestHandler<StartCommand, string>, StartCommandHandler>();
     }
 
     private static IServiceCollection ConfigureJobs(this IServiceCollection services)

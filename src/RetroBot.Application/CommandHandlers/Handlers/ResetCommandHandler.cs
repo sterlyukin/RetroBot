@@ -2,10 +2,11 @@
 using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
+using RetroBot.Application.Validators;
 
-namespace RetroBot.Application.CommandHandlers;
+namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class ResetCommandHandler : CommandHandler, IRequestHandler<ResetCommand, CommandExecutionResult>
+internal sealed class ResetCommandHandler : CommandHandler, IRequestHandler<ResetCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
@@ -14,15 +15,18 @@ internal sealed class ResetCommandHandler : CommandHandler, IRequestHandler<Rese
     public ResetCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
-        Messages messages) : base(userRepository, teamRepository, messages)
+        StandardCommandValidator validator,
+        Messages messages) : base(userRepository, teamRepository, validator, messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async Task<CommandExecutionResult> Handle(ResetCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(ResetCommand request, CancellationToken cancellationToken)
     {
+        await ValidateAsync(request);
+
         var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
@@ -34,6 +38,6 @@ internal sealed class ResetCommandHandler : CommandHandler, IRequestHandler<Rese
         await teamRepository.TryDeleteAsync(team);
         await userRepository.TryDeleteAsync(user);
         
-        return CommandExecutionResult.Valid(string.Empty);
+        return string.Empty;
     }
 }
