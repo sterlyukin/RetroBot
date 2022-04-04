@@ -24,8 +24,7 @@ public static class DependencyRegistration
 
         var bot = new TelegramBotClient(telegramClientOptions.ApiKey);
         
-        
-        services
+        return services
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
             .AddSingleton(messages)
@@ -35,8 +34,6 @@ public static class DependencyRegistration
             .AddMediatR(Assembly.GetExecutingAssembly())
             .ConfigureHandlers()
             .ConfigureJobs();
-
-        return services;
     }
     
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
@@ -60,21 +57,42 @@ public static class DependencyRegistration
 
     private static IServiceCollection ConfigureJobs(this IServiceCollection services)
     {
-        services
+        return services
+            .ConfigureQuestionJob()
+            .ConfigureNotifyJob();
+    }
+    
+    private static IServiceCollection ConfigureQuestionJob(this IServiceCollection services)
+    {
+        return services
             .AddQuartz(q =>
             {
                 q.UseMicrosoftDependencyInjectionJobFactory();
                 
-                var jobKey = new JobKey("QuestionJob");
+                var jobKey = new JobKey(nameof(QuestionJob));
                 q.AddJob<QuestionJob>(o => o.WithIdentity(jobKey));
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
-                    .WithIdentity("QuestionJob-trigger")
-                    .WithCronSchedule("0 0/1 * * * ?"));
-            });
-        
-        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
-        return services;
+                    .WithIdentity($"{nameof(QuestionJob)}-trigger")
+                    .WithCronSchedule("0 0/3 * * * ?"));
+            })
+            .AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+    }
+    
+    private static IServiceCollection ConfigureNotifyJob(this IServiceCollection services)
+    {
+        return services
+            .AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+                
+                var jobKey = new JobKey(nameof(NotifyJob));
+                q.AddJob<NotifyJob>(o => o.WithIdentity(jobKey));
+                q.AddTrigger(o => o
+                    .ForJob(jobKey)
+                    .WithIdentity($"{nameof(NotifyJob)}-trigger")
+                    .WithCronSchedule("0 0/4 * * * ?"));
+            })
+            .AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
 }
