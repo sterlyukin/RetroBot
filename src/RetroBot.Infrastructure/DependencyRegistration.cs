@@ -7,6 +7,7 @@ using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Contracts.Services.Notification;
 using RetroBot.Infrastructure.DataStorageClient;
 using RetroBot.Infrastructure.DataStorageClient.Internal;
+using RetroBot.Infrastructure.DataStorageClient.Internal.Repositories;
 using RetroBot.Infrastructure.DataStorageClient.Mappers;
 using RetroBot.Infrastructure.EmailClient;
 
