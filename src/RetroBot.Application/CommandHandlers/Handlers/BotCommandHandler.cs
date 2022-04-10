@@ -15,66 +15,29 @@ internal sealed class BotCommandHandler
 
     private readonly IMediator mediator;
     private readonly IUserRepository userRepository;
+    private readonly CommandDispatcher commandDispatcher;
     private readonly Messages messages;
-
-    private IDictionary<string, Command?> menuCommands;
-    private IDictionary<UserState, Command?> processCommands;
 
     public BotCommandHandler(
         ITelegramBotClient bot,
         IMediator mediator,
         IUserRepository userRepository,
+        CommandDispatcher commandDispatcher,
         Messages messages)
     {
         this.bot = bot ?? throw new ArgumentNullException(nameof(bot));
         this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.commandDispatcher = commandDispatcher ?? throw new ArgumentNullException(nameof(commandDispatcher));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
-        
-        InitializeCommandHandlers();
-    }
-
-    private void InitializeCommandHandlers()
-    {
-        menuCommands = new Dictionary<string, Command?>
-        {
-            {
-                messages.StartMenuCommand,
-                new StartCommand()
-            },
-            {
-                messages.JoinTeamMenuCommand,
-                new JoinTeamCommand()
-            },
-            {
-                messages.CreateTeamMenuCommand,
-                new CreateTeamCommand()
-            }
-        };
-        
-        processCommands = new Dictionary<UserState, Command?>
-        {
-            {
-                UserState.OnInputTeamId,
-                new InputTeamIdCommand()
-            },
-            {
-                UserState.OnInputTeamName,
-                new InputTeamNameCommand()
-            },
-            {
-                UserState.OnInputTeamleadEmail,
-                new InputTeamleadEmailCommand()
-            },
-        };
     }
 
     public async void OnReceiveMessage(object? sender, MessageEventArgs e)
     {
         try
         {
-            var containsHandler = menuCommands.TryGetValue(e.Message.Text, out var command);
-            if (!containsHandler || command is null)
+            var command = commandDispatcher.GetCommandByName(e.Message.Text);
+            if (command is null)
             {
                 var user = await userRepository.TryGetByIdAsync(e.Message.From.Id);
                 if (user is null)
@@ -82,10 +45,9 @@ internal sealed class BotCommandHandler
                 
                 if(user.State == UserState.Completed)
                     return;
-                
-                var containsState =
-                    processCommands.TryGetValue(user.State, out command);
-                if (!containsState || command is null)
+
+                command = commandDispatcher.GetCommandByState(user.State);
+                if (command is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
 

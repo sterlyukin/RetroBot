@@ -28,6 +28,7 @@ public static class DependencyRegistration
             .AddSingleton<ITelegramBotClient>(bot)
             .AddSingleton(telegramClientOptions)
             .AddSingleton(messages)
+            .AddSingleton<CommandDispatcher>()
             .AddSingleton<ReportBuilder>()
             .AddSingleton<ReportManager>()
             .AddSingleton<QuizProcessor>()
@@ -74,7 +75,7 @@ public static class DependencyRegistration
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
                     .WithIdentity($"{nameof(QuestionJob)}-trigger")
-                    .WithCronSchedule("0 0/3 * * * ?"));
+                    .WithCronSchedule("0 0/5 * * * ?"));
             })
             .AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
@@ -91,7 +92,7 @@ public static class DependencyRegistration
                 q.AddTrigger(o => o
                     .ForJob(jobKey)
                     .WithIdentity($"{nameof(NotifyJob)}-trigger")
-                    .WithCronSchedule("0 0/4 * * * ?"));
+                    .WithCronSchedule("0 0/6 * * * ?"));
             })
             .AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
