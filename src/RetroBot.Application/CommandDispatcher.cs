@@ -1,5 +1,6 @@
 ﻿using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Core;
+using Telegram.Bot.Args;
 
 namespace RetroBot.Application;
 
@@ -39,23 +40,39 @@ public sealed class CommandDispatcher
             {
                 UserState.OnInputTeamleadEmail,
                 new InputTeamleadEmailCommand()
+            },
+            {
+                UserState.OnReset,
+                new ResetCommand()
             }
         };
     }
 
-    public Command? GetCommandByName(string commandName)
+    public Command? BuildCommand(string commandName, MessageEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(commandName))
             return null;
-        
-        return menuCommands.TryGetValue(commandName, out Command? command) ? command : null;
+
+        var commandIsParsed = menuCommands.TryGetValue(commandName, out Command? command);
+        return commandIsParsed && command is not null ? BuildCommandData(command, e) : null;
     }
 
-    public Command? GetCommandByState(UserState? userState)
+    public Command? BuildCommand(UserState? userState, MessageEventArgs e)
     {
         if (userState is null)
             return null;
 
-        return processCommands.TryGetValue(userState.Value, out Command? command) ? command : null;
+        var commandIsParsed = processCommands.TryGetValue(userState.Value, out Command? command);
+        return commandIsParsed && command is not null ? BuildCommandData(command, e) : null;
+    }
+
+    private Command BuildCommandData(Command command, MessageEventArgs e)
+    {
+        command.UserId = e.Message.From.Id;
+        command.Text = e.Message.Text;
+        command.Username = e.Message.From.Username;
+        command.FirstName = e.Message.From.FirstName;
+
+        return command;
     }
 }

@@ -24,10 +24,10 @@ public sealed class StateMachine
             .Permit(UserAction.EnteredTeamName, UserState.OnInputTeamleadEmail);
         
         stateMachine.Configure(UserState.OnInputTeamleadEmail)
-            .Permit(UserAction.EnteredTeamleadEmail, UserState.Completed);
+            .Permit(UserAction.EnteredTeamleadEmail, UserState.OnComplete);
 
         stateMachine.Configure(UserState.OnInputTeamId)
-            .Permit(UserAction.EnteredTeamId, UserState.Completed);
+            .Permit(UserAction.EnteredTeamId, UserState.OnComplete);
     }
 
     public UserState ChangeState(UserAction action)

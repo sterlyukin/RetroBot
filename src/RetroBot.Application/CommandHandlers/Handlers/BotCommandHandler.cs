@@ -36,22 +36,21 @@ internal sealed class BotCommandHandler
     {
         try
         {
-            var command = commandDispatcher.GetCommandByName(e.Message.Text);
+            var command = commandDispatcher.BuildCommand(e.Message.Text, e);
             if (command is null)
             {
                 var user = await userRepository.TryGetByIdAsync(e.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 
-                if(user.State == UserState.Completed)
+                if(user.State == UserState.OnComplete)
                     return;
 
-                command = commandDispatcher.GetCommandByState(user.State);
+                command = commandDispatcher.BuildCommand(user.State, e);
                 if (command is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
 
-            InitializeCommand(command, e);
             var commandExecutionResult = await mediator.Send(command);
             await SendMessageAsync(e.Message.From.Id, commandExecutionResult?.ToString());
         }
@@ -61,34 +60,18 @@ internal sealed class BotCommandHandler
         }
     }
 
-    private void InitializeCommand(Command command, MessageEventArgs e)
-    {
-        command.UserId = e.Message.From.Id;
-        command.Text = e.Message.Text;
-        command.Username = e.Message.From.Username;
-        command.FirstName = e.Message.From.FirstName;
-    }
-
     private async Task SendResetCommandAsync(MessageEventArgs e, string message)
     {
-        await SendErrorMessageAsync(e.Message.From.Id, message);
+        await SendMessageAsync(e.Message.From.Id,
+            $"{message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
 
-        var resetCommand = new ResetCommand();
-        InitializeCommand(resetCommand, e);
-        await mediator.Send(resetCommand);
+        var resetCommand = commandDispatcher.BuildCommand(UserState.OnReset, e);
+        if(resetCommand is not null)
+            await mediator.Send(resetCommand);
     }
     
-    private async Task SendErrorMessageAsync(ChatId chat, string? message)
-    {
-        await SendMessageAsync(chat,
-            $"{message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
-    }
-
     private async Task SendMessageAsync(ChatId chat, string? message)
     {
-        await bot.SendTextMessageAsync(
-            chatId: chat,
-            text: message ?? default
-        );
+        await bot.SendTextMessageAsync( chat, message ?? default);
     }
 }

@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Application.StateMachine;
 using RetroBot.Application.Validators;
 using RetroBot.Core;
@@ -8,25 +10,24 @@ using RetroBot.Core.Entities;
 
 namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<StartCommand, string>
+internal sealed class StartCommandHandler : IRequestHandler<StartCommand, string>
 {
     private readonly IUserRepository userRepository;
+    private readonly UserPostProcessor userPostProcessor;
     private readonly Messages messages;
     
     public StartCommandHandler(
         IUserRepository userRepository,
-        ITeamRepository teamRepository,
-        StandardCommandValidator validator,
-        Messages messages) : base(userRepository, teamRepository, validator, messages)
+        UserPostProcessor userPostProcessor,
+        Messages messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        this.userPostProcessor = userPostProcessor ?? throw new ArgumentNullException(nameof(userPostProcessor));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public async Task<string> Handle(StartCommand request, CancellationToken cancellationToken)
     {
-        await ValidateAsync(request);
-
         var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is not null)
         {
@@ -40,7 +41,7 @@ internal sealed class StartCommandHandler : CommandHandler, IRequestHandler<Star
                 Id = request.UserId,
                 State = UserState.OnStartMessage,
             });
-            await UpdateUserStateAsync(request.UserId, UserAction.PressedStart);
+            await userPostProcessor.UpdateUserStateAsync(request.UserId, UserAction.PressedStart);
         }
         
         var contactName = GetContactName(request);

@@ -7,5 +7,6 @@ public enum UserState
     OnInputTeamId,
     OnInputTeamName,
     OnInputTeamleadEmail,
-    Completed
+    OnComplete,
+    OnReset
 }

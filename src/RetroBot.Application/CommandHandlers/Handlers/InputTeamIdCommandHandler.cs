@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
@@ -7,26 +8,33 @@ using RetroBot.Application.Validators;
 
 namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandler<InputTeamIdCommand, string>
+internal sealed class InputTeamIdCommandHandler : IRequestHandler<InputTeamIdCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
+    private readonly StandardCommandValidator validator;
+    private readonly UserPostProcessor userPostProcessor;
     private readonly Messages messages;
     
     public InputTeamIdCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
         StandardCommandValidator validator,
-        Messages messages) : base(userRepository, teamRepository, validator, messages)
+        UserPostProcessor userPostProcessor,
+        Messages messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
+        this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
+        this.userPostProcessor = userPostProcessor ?? throw new ArgumentNullException(nameof(userPostProcessor));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public async Task<string> Handle(InputTeamIdCommand request, CancellationToken cancellationToken)
     {
-        await ValidateAsync(request);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+            throw new BusinessException(validationResult.GetCombinedErrorMessage());
         
         if (!Guid.TryParse(request.Text, out var teamId))
             throw new BusinessException(messages.InvalidTeamId);
@@ -39,7 +47,7 @@ internal sealed class InputTeamIdCommandHandler : CommandHandler, IRequestHandle
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
-        var updatedUser = await UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
+        var updatedUser = await userPostProcessor.UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
         await teamRepository.TryAddUserToTeamAsync(team, updatedUser);
 
         return messages.SuccessfullyJoinTeam;

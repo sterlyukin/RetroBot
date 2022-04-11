@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
@@ -6,26 +7,30 @@ using RetroBot.Application.Validators;
 
 namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class ResetCommandHandler : CommandHandler, IRequestHandler<ResetCommand, string>
+internal sealed class ResetCommandHandler : IRequestHandler<ResetCommand, string>
 {
     private readonly IUserRepository userRepository;
     private readonly ITeamRepository teamRepository;
+    private readonly StandardCommandValidator validator;
     private readonly Messages messages;
     
     public ResetCommandHandler(
         IUserRepository userRepository,
         ITeamRepository teamRepository,
         StandardCommandValidator validator,
-        Messages messages) : base(userRepository, teamRepository, validator, messages)
+        Messages messages)
     {
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.teamRepository = teamRepository ?? throw new ArgumentNullException(nameof(teamRepository));
+        this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
     public async Task<string> Handle(ResetCommand request, CancellationToken cancellationToken)
     {
-        await ValidateAsync(request);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+            throw new BusinessException(validationResult.GetCombinedErrorMessage());
 
         var user = await userRepository.TryGetByIdAsync(request.UserId);
         if (user is null)

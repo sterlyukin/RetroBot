@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Hosting;
-using RetroBot.Application.CommandHandlers;
 using RetroBot.Application.CommandHandlers.Handlers;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using Telegram.Bot;

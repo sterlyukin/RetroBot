@@ -32,6 +32,7 @@ public static class DependencyRegistration
             .AddSingleton<ReportBuilder>()
             .AddSingleton<ReportManager>()
             .AddSingleton<QuizProcessor>()
+            .AddSingleton<UserPostProcessor>()
             .AddMediatR(Assembly.GetExecutingAssembly())
             .ConfigureHandlers()
             .ConfigureJobs();
@@ -41,7 +42,7 @@ public static class DependencyRegistration
     {
         return services
             .AddSingleton<StandardCommandValidator>()
-                
+
             .AddScoped<IRequestHandler<CreateTeamCommand, string>, CreateTeamCommandHandler>()
 
             .AddScoped<IRequestHandler<InputTeamIdCommand, string>, InputTeamIdCommandHandler>()
@@ -53,7 +54,9 @@ public static class DependencyRegistration
 
             .AddScoped<IRequestHandler<JoinTeamCommand, string>, JoinTeamCommandHandler>()
 
-            .AddScoped<IRequestHandler<StartCommand, string>, StartCommandHandler>();
+            .AddScoped<IRequestHandler<StartCommand, string>, StartCommandHandler>()
+
+            .AddScoped<IRequestHandler<ResetCommand, string>, ResetCommandHandler>();
     }
 
     private static IServiceCollection ConfigureJobs(this IServiceCollection services)

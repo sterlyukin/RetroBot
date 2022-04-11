@@ -1,26 +1,29 @@
 ﻿using MediatR;
 using RetroBot.Application.CommandHandlers.Commands;
-using RetroBot.Application.Contracts.Services.DataStorage;
+using RetroBot.Application.Exceptions;
 using RetroBot.Application.Validators;
 
 namespace RetroBot.Application.CommandHandlers.Handlers;
 
-internal sealed class JoinTeamCommandHandler : CommandHandler, IRequestHandler<JoinTeamCommand, string>
+internal sealed class JoinTeamCommandHandler : IRequestHandler<JoinTeamCommand, string>
 {
+    private readonly StandardCommandValidator validator;
     private readonly Messages messages;
     
     public JoinTeamCommandHandler(
-        IUserRepository userRepository,
-        ITeamRepository teamRepository,
         StandardCommandValidator validator,
-        Messages messages) : base(userRepository, teamRepository, validator, messages)
+        Messages messages)
     {
+        this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
     
     public async Task<string> Handle(JoinTeamCommand request, CancellationToken cancellationToken)
     {
-        await ValidateAsync(request);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+            throw new BusinessException(validationResult.GetCombinedErrorMessage());
+
         return messages.SuggestionToEnterTeamId;
     }
 }

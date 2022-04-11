@@ -40,7 +40,7 @@ public sealed class QuestionJob : IJob
         {
             foreach (var user in team.Users)
             {
-                if (user.State == UserState.Completed)
+                if (user.State == UserState.OnComplete)
                 {
                     await quizProcessor.ExecuteAsync(user.Id, string.Empty);
                 }
