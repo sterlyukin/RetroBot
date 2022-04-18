@@ -32,31 +32,31 @@ internal sealed class BotCommandHandler
         this.messages = messages ?? throw new ArgumentNullException(nameof(messages));
     }
 
-    public async void OnReceiveMessage(object? sender, MessageEventArgs e)
+    public async void OnReceiveMessage(object? sender, MessageEventArgs receivedMessage)
     {
         try
         {
-            var command = commandDispatcher.BuildCommand(e.Message.Text, e);
+            var command = commandDispatcher.BuildCommand(receivedMessage);
             if (command is null)
             {
-                var user = await userRepository.TryGetByIdAsync(e.Message.From.Id);
+                var user = await userRepository.TryGetByIdAsync(receivedMessage.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 
                 if(user.State == UserState.OnComplete)
                     return;
 
-                command = commandDispatcher.BuildCommand(user.State, e);
+                command = commandDispatcher.BuildCommand(user.State, receivedMessage);
                 if (command is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
 
             var commandExecutionResult = await mediator.Send(command);
-            await SendMessageAsync(e.Message.From.Id, commandExecutionResult?.ToString());
+            await SendMessageAsync(receivedMessage.Message.From.Id, commandExecutionResult?.ToString());
         }
         catch (Exception ex)
         {
-            await SendResetCommandAsync(e, ex.Message);
+            await SendResetCommandAsync(receivedMessage, ex.Message);
         }
     }
 

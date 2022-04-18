@@ -48,30 +48,30 @@ public sealed class CommandDispatcher
         };
     }
 
-    public Command? BuildCommand(string commandName, MessageEventArgs e)
+    public Command? BuildCommand(MessageEventArgs receivedMessage)
     {
-        if (string.IsNullOrWhiteSpace(commandName))
+        if (string.IsNullOrWhiteSpace(receivedMessage.Message.Text))
             return null;
 
-        var commandIsParsed = menuCommands.TryGetValue(commandName, out Command? command);
-        return commandIsParsed && command is not null ? BuildCommandData(command, e) : null;
+        var commandIsParsed = menuCommands.TryGetValue(receivedMessage.Message.Text, out Command? command);
+        return commandIsParsed && command is not null ? BuildCommandData(command, receivedMessage) : null;
     }
 
-    public Command? BuildCommand(UserState? userState, MessageEventArgs e)
+    public Command? BuildCommand(UserState? userState, MessageEventArgs receivedMessage)
     {
         if (userState is null)
             return null;
 
         var commandIsParsed = processCommands.TryGetValue(userState.Value, out Command? command);
-        return commandIsParsed && command is not null ? BuildCommandData(command, e) : null;
+        return commandIsParsed && command is not null ? BuildCommandData(command, receivedMessage) : null;
     }
 
-    private Command BuildCommandData(Command command, MessageEventArgs e)
+    private Command BuildCommandData(Command command, MessageEventArgs receivedMessage)
     {
-        command.UserId = e.Message.From.Id;
-        command.Text = e.Message.Text;
-        command.Username = e.Message.From.Username;
-        command.FirstName = e.Message.From.FirstName;
+        command.UserId = receivedMessage.Message.From.Id;
+        command.Text = receivedMessage.Message.Text;
+        command.Username = receivedMessage.Message.From.Username;
+        command.FirstName = receivedMessage.Message.From.FirstName;
 
         return command;
     }
