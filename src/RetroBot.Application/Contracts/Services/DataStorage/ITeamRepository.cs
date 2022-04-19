@@ -4,11 +4,11 @@ namespace RetroBot.Application.Contracts.Services.DataStorage;
 
 public interface ITeamRepository
 {
-    Task<IList<Team>> TryGetAsync();
-    Task<Team?> TryGetByIdAsync(Guid teamId);
-    Task<Team?> TryGetByUserIdAsync(long userId);
-    Task TryAddAsync(Team team);
-    Task TryUpdateAsync(Team team);
-    Task TryAddUserToTeamAsync(Team team, User user);
-    Task TryDeleteAsync(Team team);
+    Task<IList<Team>> GetAllAsync();
+    Task<Team?> FindAsync(Guid teamId);
+    Task<Team?> FindAsync(long userId);
+    Task AddAsync(Team team);
+    Task UpdateAsync(Team team);
+    Task AddUserToTeamAsync(Team team, User user);
+    Task DeleteAsync(Team team);
 }

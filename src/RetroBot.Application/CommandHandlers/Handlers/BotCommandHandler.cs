@@ -39,7 +39,7 @@ internal sealed class BotCommandHandler
             var command = commandDispatcher.BuildCommand(receivedMessage);
             if (command is null)
             {
-                var user = await userRepository.TryGetByIdAsync(receivedMessage.Message.From.Id);
+                var user = await userRepository.FindAsync(receivedMessage.Message.From.Id);
                 if (user is null)
                     throw new BusinessException(messages.UnknownUser);
                 

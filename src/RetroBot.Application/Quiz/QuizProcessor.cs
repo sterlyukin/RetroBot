@@ -35,15 +35,15 @@ public sealed class QuizProcessor
     {
         var semaphoreObject = new Semaphore(1, 1, name: "Question job");
         semaphoreObject.WaitOne();
-        var user = await userRepository.TryGetByIdAsync(userId);
+        var user = await userRepository.FindAsync(userId);
         if (user is null || user.State is not UserState.OnComplete)
         {
             semaphoreObject.Release();
             return;
         }
         
-        var questions = await questionRepository.TryGetQuestionsAsync();
-        var userAnswers = await answerRepository.TryGetAnswersByUserIdAsync(userId);
+        var questions = await questionRepository.GetAllAsync();
+        var userAnswers = await answerRepository.GetByFilterAsync(userId);
 
         if (userAnswers.Any(userAnswer => string.Equals(userAnswer.Text, answer)))
         {
@@ -64,7 +64,7 @@ public sealed class QuizProcessor
         if (lastUnansweredQuestion is not null && !string.IsNullOrEmpty(answer))
         {
             lastUnansweredQuestion.Text = answer;
-            await answerRepository.TryUpdateAnswerAsync(lastUnansweredQuestion);
+            await answerRepository.UpdateAsync(lastUnansweredQuestion);
         }
     }
 
@@ -83,7 +83,7 @@ public sealed class QuizProcessor
                 UserId = userId
             };
             
-            await answerRepository.TryAddAnswerAsync(answerObj);
+            await answerRepository.AddAsync(answerObj);
 
             await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
         }

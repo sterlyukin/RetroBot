@@ -4,8 +4,8 @@ namespace RetroBot.Application.Contracts.Services.DataStorage;
 
 public interface IUserRepository
 {
-    Task<User?> TryGetByIdAsync(long userId);
-    Task TryAddAsync(User user);
-    Task<User> TryUpdateAsync(User user);
-    Task TryDeleteAsync(User user);
+    Task<User?> FindAsync(long userId);
+    Task AddAsync(User user);
+    Task<User> UpdateAsync(User user);
+    Task DeleteAsync(User user);
 }

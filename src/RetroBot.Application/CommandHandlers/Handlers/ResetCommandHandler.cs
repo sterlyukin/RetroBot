@@ -32,16 +32,16 @@ internal sealed class ResetCommandHandler : IRequestHandler<ResetCommand, string
         if (!validationResult.IsValid)
             throw new BusinessException(validationResult.GetCombinedErrorMessage());
 
-        var user = await userRepository.TryGetByIdAsync(request.UserId);
+        var user = await userRepository.FindAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
-        var team = await teamRepository.TryGetByUserIdAsync(user.Id);
+        var team = await teamRepository.FindAsync(user.Id);
         if (team is null)
             throw new BusinessException(messages.NonexistentTeamId);
 
-        await teamRepository.TryDeleteAsync(team);
-        await userRepository.TryDeleteAsync(user);
+        await teamRepository.DeleteAsync(team);
+        await userRepository.DeleteAsync(user);
         
         return string.Empty;
     }

@@ -37,7 +37,7 @@ internal sealed class InputTeamNameCommandHandler : IRequestHandler<InputTeamNam
         if (!validationResult.IsValid)
             throw new BusinessException(validationResult.GetCombinedErrorMessage());
 
-        var user = await userRepository.TryGetByIdAsync(request.UserId);
+        var user = await userRepository.FindAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
         
@@ -51,7 +51,7 @@ internal sealed class InputTeamNameCommandHandler : IRequestHandler<InputTeamNam
                 updatedUser
             }
         };
-        await teamRepository.TryAddAsync(newTeam);
+        await teamRepository.AddAsync(newTeam);
 
         return messages.SuggestionToEnterTeamleadEmail;
     }

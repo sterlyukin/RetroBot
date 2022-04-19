@@ -12,7 +12,7 @@ internal sealed class QuestionRepository : IQuestionRepository
         this.database = database ?? throw new ArgumentNullException(nameof(database));
     }
     
-    public async Task<IList<Question>> TryGetQuestionsAsync()
+    public async Task<IList<Question>> GetAllAsync()
     {
         return await database.Questions.GetAllAsync();
     }

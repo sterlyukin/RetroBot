@@ -39,16 +39,16 @@ internal sealed class InputTeamIdCommandHandler : IRequestHandler<InputTeamIdCom
         if (!Guid.TryParse(request.Text, out var teamId))
             throw new BusinessException(messages.InvalidTeamId);
 
-        var team = await teamRepository.TryGetByIdAsync(teamId);
+        var team = await teamRepository.FindAsync(teamId);
         if (team is null)
             throw new BusinessException( messages.NonexistentTeamId);
 
-        var user = await userRepository.TryGetByIdAsync(request.UserId);
+        var user = await userRepository.FindAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var updatedUser = await userPostProcessor.UpdateUserStateAsync(user.Id, UserAction.EnteredTeamId);
-        await teamRepository.TryAddUserToTeamAsync(team, updatedUser);
+        await teamRepository.AddUserToTeamAsync(team, updatedUser);
 
         return messages.SuccessfullyJoinTeam;
     }

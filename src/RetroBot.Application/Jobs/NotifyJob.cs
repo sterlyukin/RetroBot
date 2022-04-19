@@ -23,7 +23,7 @@ public sealed class NotifyJob : IJob
 
     private async Task SendAnswersNotificationsAsync()
     {
-        var answers = await answerRepository.TryGetAnswersAsync();
+        var answers = await answerRepository.GetAllAsync();
         if (answers.Any())
             await reportManager.ExecuteAsync();
     }

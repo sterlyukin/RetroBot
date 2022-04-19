@@ -30,12 +30,12 @@ public sealed class QuestionJob : IJob
 
     private async Task RemoveObsoleteAnswersAsync()
     {
-        await answerRepository.TryDeleteAnswersAsync();
+        await answerRepository.DeleteAsync();
     }
 
     private async Task GetUpToDateAnswersAsync()
     {
-        var teams = await teamRepository.TryGetAsync();
+        var teams = await teamRepository.GetAllAsync();
         foreach (var team in teams)
         {
             foreach (var user in team.Users)

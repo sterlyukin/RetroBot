@@ -36,11 +36,11 @@ internal sealed class InputTeamleadEmailCommandHandler : IRequestHandler<InputTe
         if (!validationResult.IsValid)
             throw new BusinessException(validationResult.GetCombinedErrorMessage());
         
-        var user = await userRepository.TryGetByIdAsync(request.UserId);
+        var user = await userRepository.FindAsync(request.UserId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
-        var team = await teamRepository.TryGetByUserIdAsync(user.Id);
+        var team = await teamRepository.FindAsync(user.Id);
         if (team is null)
             throw new BusinessException(messages.NonexistentTeamId);
 
@@ -59,6 +59,6 @@ internal sealed class InputTeamleadEmailCommandHandler : IRequestHandler<InputTe
                 currentUser.State = updatedUser.State;
         });
         
-        await teamRepository.TryUpdateAsync(team);
+        await teamRepository.UpdateAsync(team);
     }
 }

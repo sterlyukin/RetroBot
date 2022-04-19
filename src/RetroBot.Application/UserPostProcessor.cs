@@ -20,13 +20,13 @@ public sealed class UserPostProcessor
 
     public async Task<User> UpdateUserStateAsync(long userId, UserAction action)
     {
-        var user = await userRepository.TryGetByIdAsync(userId);
+        var user = await userRepository.FindAsync(userId);
         if (user is null)
             throw new BusinessException(messages.UnknownUser);
 
         var stateMachine = new StateMachine.StateMachine(user.State);
         user.State = stateMachine.ChangeState(action);
 
-        return await userRepository.TryUpdateAsync(user);
+        return await userRepository.UpdateAsync(user);
     }
 }

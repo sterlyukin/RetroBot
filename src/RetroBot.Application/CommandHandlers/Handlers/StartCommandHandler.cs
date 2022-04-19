@@ -28,15 +28,15 @@ internal sealed class StartCommandHandler : IRequestHandler<StartCommand, string
 
     public async Task<string> Handle(StartCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.TryGetByIdAsync(request.UserId);
+        var user = await userRepository.FindAsync(request.UserId);
         if (user is not null)
         {
             user.State = UserState.OnStartMessage;
-            await userRepository.TryUpdateAsync(user);
+            await userRepository.UpdateAsync(user);
         }
         else
         {
-            await userRepository.TryAddAsync(new User
+            await userRepository.AddAsync(new User
             {
                 Id = request.UserId,
                 State = UserState.OnStartMessage,
