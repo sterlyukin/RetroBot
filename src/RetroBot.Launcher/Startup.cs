@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RetroBot.Application;
-using RetroBot.Infrastructure;
-using RetroBot.Infrastructure.DataStorageClient;
+using RetroBot.DataStorage;
 using RetroBot.Infrastructure.EmailClient;
 using RetroBot.Launcher.Infrastructure;
+using RetroBot.Notificator;
 
 namespace RetroBot.Launcher;
 
@@ -32,6 +32,7 @@ public sealed class Startup
 
         services
             .AddApplication(telegramClientOptions, messages)
-            .AddInfrastructure(databaseOptions, emailOptions);
+            .AddDatabase(databaseOptions)
+            .AddNotificator(emailOptions);
     }
 }

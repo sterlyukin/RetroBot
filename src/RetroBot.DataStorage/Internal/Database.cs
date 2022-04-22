@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Infrastructure.DataStorageClient.Internal;
+namespace RetroBot.DataStorage.Internal;
 
 internal sealed class Database
 {

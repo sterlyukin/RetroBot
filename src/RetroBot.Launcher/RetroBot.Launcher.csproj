@@ -9,7 +9,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\RetroBot.Application\RetroBot.Application.csproj" />
-      <ProjectReference Include="..\RetroBot.Infrastructure\RetroBot.Infrastructure.csproj" />
+      <ProjectReference Include="..\RetroBot.DataStorage\RetroBot.DataStorage.csproj" />
+      <ProjectReference Include="..\RetroBot.Notificator\RetroBot.Notificator.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Infrastructure.DataStorageClient.Mappers;
+namespace RetroBot.DataStorage.Internal.Mappers;
 
 internal sealed class QuestionMapper : BsonClassMap<Question>
 {

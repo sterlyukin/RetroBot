@@ -2,7 +2,7 @@
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Infrastructure.DataStorageClient.Internal.Repositories;
+namespace RetroBot.DataStorage.Internal.Repositories;
 
 internal sealed class AnswerRepository : IAnswerRepository
 {

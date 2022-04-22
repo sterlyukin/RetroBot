@@ -1,8 +1,9 @@
 ﻿using FluentEmail.Core;
 using RetroBot.Application.Contracts.Services.Notification;
 using RetroBot.Core.Entities;
+using RetroBot.Infrastructure.EmailClient;
 
-namespace RetroBot.Infrastructure.EmailClient;
+namespace RetroBot.Notificator.Internal;
 
 internal sealed class EmailNotifier : INotifier
 {

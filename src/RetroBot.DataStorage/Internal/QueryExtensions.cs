@@ -1,8 +1,7 @@
 ﻿using MongoDB.Driver;
-using RetroBot.Core;
 using RetroBot.Core.Interfaces;
 
-namespace RetroBot.Infrastructure.DataStorageClient.Internal;
+namespace RetroBot.DataStorage.Internal;
 
 internal static class QueryExtensions
 {

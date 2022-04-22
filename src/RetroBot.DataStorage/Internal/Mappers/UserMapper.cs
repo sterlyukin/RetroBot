@@ -3,15 +3,15 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using RetroBot.Core.Entities;
 
-namespace RetroBot.Infrastructure.DataStorageClient.Mappers;
+namespace RetroBot.DataStorage.Internal.Mappers;
 
-internal sealed class TeamMapper : BsonClassMap<Team>
+internal sealed class UserMapper : BsonClassMap<User>
 {
-    public TeamMapper()
+    public UserMapper()
     {
         AutoMap();
         MapIdMember(e => e.Id)
             .SetIgnoreIfDefault(true)
-            .SetSerializer(new GuidSerializer(BsonType.Binary));
+            .SetSerializer(new Int64Serializer(BsonType.Int64));
     }
 }
