@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Application.Contracts.Services.DataStorage;
 using RetroBot.Application.Exceptions;
 using RetroBot.Core;
@@ -36,7 +35,11 @@ internal sealed class BotCommandHandler
     {
         try
         {
-            var command = commandDispatcher.BuildCommand(receivedMessage);
+            var command = commandDispatcher.BuildCommand(
+                receivedMessage.Message.From.Id,
+                receivedMessage.Message.Text,
+                receivedMessage.Message.From.Username,
+                receivedMessage.Message.From.FirstName);
             if (command is null)
             {
                 var user = await userRepository.FindAsync(receivedMessage.Message.From.Id);
@@ -46,7 +49,12 @@ internal sealed class BotCommandHandler
                 if(user.State == UserState.OnComplete)
                     return;
 
-                command = commandDispatcher.BuildCommand(user.State, receivedMessage);
+                command = commandDispatcher.BuildCommand(
+                    user.State,
+                    receivedMessage.Message.From.Id,
+                    receivedMessage.Message.Text,
+                    receivedMessage.Message.From.Username,
+                    receivedMessage.Message.From.FirstName);
                 if (command is null)
                     throw new BusinessException(messages.IllegalCommand);
             }
@@ -60,12 +68,17 @@ internal sealed class BotCommandHandler
         }
     }
 
-    private async Task SendResetCommandAsync(MessageEventArgs e, string message)
+    private async Task SendResetCommandAsync(MessageEventArgs receivedMessage, string message)
     {
-        await SendMessageAsync(e.Message.From.Id,
+        await SendMessageAsync(receivedMessage.Message.From.Id,
             $"{message}.\n" + string.Format(messages.TryAgain, messages.StartMenuCommand));
 
-        var resetCommand = commandDispatcher.BuildCommand(UserState.OnReset, e);
+        var resetCommand = commandDispatcher.BuildCommand(
+            UserState.OnReset,
+            receivedMessage.Message.From.Id,
+            receivedMessage.Message.Text,
+            receivedMessage.Message.From.Username,
+            receivedMessage.Message.From.FirstName);
         if(resetCommand is not null)
             await mediator.Send(resetCommand);
     }

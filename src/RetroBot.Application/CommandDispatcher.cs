@@ -1,6 +1,5 @@
 ﻿using RetroBot.Application.CommandHandlers.Commands;
 using RetroBot.Core;
-using Telegram.Bot.Args;
 
 namespace RetroBot.Application;
 
@@ -48,30 +47,34 @@ public sealed class CommandDispatcher
         };
     }
 
-    public Command? BuildCommand(MessageEventArgs receivedMessage)
+    public Command? BuildCommand(long userId, string text, string userName, string firstName)
     {
-        if (string.IsNullOrWhiteSpace(receivedMessage.Message.Text))
+        if (string.IsNullOrWhiteSpace(text))
             return null;
 
-        var commandIsParsed = menuCommands.TryGetValue(receivedMessage.Message.Text, out Command? command);
-        return commandIsParsed && command is not null ? BuildCommandData(command, receivedMessage) : null;
+        var commandIsParsed = menuCommands.TryGetValue(text, out Command? command);
+        return commandIsParsed && command is not null
+            ? InitializeCommandData(command, userId, text, userName, firstName)
+            : null;
     }
 
-    public Command? BuildCommand(UserState? userState, MessageEventArgs receivedMessage)
+    public Command? BuildCommand(UserState? userState, long userId, string text, string userName, string firstName)
     {
         if (userState is null)
             return null;
 
         var commandIsParsed = processCommands.TryGetValue(userState.Value, out Command? command);
-        return commandIsParsed && command is not null ? BuildCommandData(command, receivedMessage) : null;
+        return commandIsParsed && command is not null
+            ? InitializeCommandData(command, userId, text, userName, firstName)
+            : null;
     }
 
-    private Command BuildCommandData(Command command, MessageEventArgs receivedMessage)
+    private Command InitializeCommandData(Command command, long userId, string text, string userName, string firstName)
     {
-        command.UserId = receivedMessage.Message.From.Id;
-        command.Text = receivedMessage.Message.Text;
-        command.Username = receivedMessage.Message.From.Username;
-        command.FirstName = receivedMessage.Message.From.FirstName;
+        command.UserId = userId;
+        command.Text = text;
+        command.Username = userName;
+        command.FirstName = firstName;
 
         return command;
     }
