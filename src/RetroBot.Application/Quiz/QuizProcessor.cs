@@ -36,7 +36,7 @@ public sealed class QuizProcessor
         var semaphoreObject = new Semaphore(1, 1, name: "Question job");
         semaphoreObject.WaitOne();
         var user = await userRepository.FindAsync(userId);
-        if (user is null || user.State is not UserState.OnComplete)
+        if (user?.State is not UserState.OnComplete)
         {
             semaphoreObject.Release();
             return;
@@ -84,7 +84,6 @@ public sealed class QuizProcessor
             };
             
             await answerRepository.AddAsync(answerObj);
-
             await bot.SendTextMessageAsync(userId, unAnsweredQuestion.Text);
         }
     }
